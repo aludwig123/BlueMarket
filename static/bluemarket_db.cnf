@@ -1,0 +1,7 @@
+[client]
+host=localhost
+user=bluemark
+password='roYUM7LifEbsvm9'
+
+[mysql]
+database='bluemark_db'

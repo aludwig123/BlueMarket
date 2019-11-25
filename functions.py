@@ -7,7 +7,7 @@ import dbi
 
 def getConn():
     # Return connection to bluemark_db
-    dsn = dbi.read_cnf('/students/hyi2/bluemarket_db.cnf')
+    dsn = dbi.read_cnf('~/cs304/BlueMarket/static/bluemarket_db.cnf')
     conn = dbi.connect(dsn)
     conn.select_db('bluemark_db')
     return conn
