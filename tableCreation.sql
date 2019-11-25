@@ -23,13 +23,13 @@ CREATE TABLE post (
     name varchar(30),
     dateCreated timestamp not null default current_timestamp,
     category enum('Services', 'Textbooks', 'Clothing', 'Beauty',
-                'Food', 'Home', 'Entertainment', 'Looking For', 'Other'),
+                'Food', 'Home', 'Entertainment', 'Looking_For', 'School_Supplies', 'Other'),
     priceRange enum('free', 'low', 'medium', 'high'),
-    paymentType enum('cash', 'venmo', 'other'),
+    paymentType enum('n/a', 'cash', 'venmo', 'other'),
     pickUpLocation enum('Bates', 'Beebe','Cazenove', 'Cervantes', 'Claflin',
-                    'Dower', 'Freeman', 'Lake House', 'McAfee', 'Munger',
-                    'Pomeroy', 'Severance', 'Shafer', 'Stone-Davis','Tower Court', 
-                    'Cedar Lodge', 'French House', 'Other', 'Instead' ),
+                    'Dower', 'Freeman', 'Lake_House', 'McAfee', 'Munger',
+                    'Pomeroy', 'Severance', 'Shafer', 'Stone-Davis','Tower_Court', 
+                    'Cedar_Lodge', 'French_House', 'Other', 'Instead' ),
     description varchar(200),
     primary key (pid)
 );
@@ -39,7 +39,7 @@ CREATE TABLE item (
     name varchar(30),
     price float(9,2),
     photo blob,
-    quality enum('new', 'like new', 'gently used', 'used', 'heavily used', 'poor'),
+    quality enum('new', 'like_new', 'gently_used', 'used', 'heavily_used', 'poor'),
     isRented boolean,
     description varchar(100),
     primary key (iid)

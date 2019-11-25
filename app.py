@@ -53,13 +53,11 @@ def makePost():
         return render_template('makePost.html')
     else: 
         title = request.form.get('title')
-        #date = datetime.now()
-        #dateStr = date.strftime("%d/%m/%Y %H:%M:%S")
         category = request.form.get('category')
         pRange = request.form.get('price-range')
         pType = request.form.get('payment-type')
         pickup = request.form.get('pickup-location')
-        description = request.form.get('description')
+        description = request.form.get('description')['value']
         functions.makePost(conn,title,category,pRange,pType,pickup,description)
         return redirect(url_for('feed'))
 
