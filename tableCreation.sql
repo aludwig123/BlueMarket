@@ -1,46 +1,64 @@
-# Blue Market
-# Authors: Analiese Ludwig, Hannah Yi, Isabel Bryant
-# tableCreation.sql
+-- # Blue Market
+-- # Authors: Analiese Ludwig, Hannah Yi, Isabel Bryant
+-- # tableCreation.sql
+
+drop table if exists user;
+drop table if exists post;
+drop table if exists item;
+drop table if exists bookmark;
+drop table if exists interested;
+drop table if exists postsItems;
+
+CREATE TABLE user (
+    uid varchar(10),
+    name varchar(50),
+    email varchar(30),
+    gradYear varchar(4),
+    avatar blob,
+    primary key (uid)
+);
 
 CREATE TABLE post (
-     pid int auto_increment,
-     name varchar(30),
-     dateCreated datetime,
-     category enum('Services', 'Textbooks', 'Clothing', 'Beauty',
-                    'Food', 'Home', 'Entertainment', 'Looking For', 'Other'),
-     priceRange enum('free', 'low', 'medium', 'high'),
-     paymentType enum('cash', 'venmo', 'other'),
-     pickUpLocation enum('Bates', 'Beebe','Cazenove', 'Cervantes', 'Claflin',
-                        'Dower', 'Freeman', 'Lake House', 'McAfee', 'Munger',
-                        'Pomeroy', 'Severance', 'Shafer', 'Stone-Davis','Tower Court', 
-                        'Cedar Lodge', 'French House', 'Other', 'Instead' ),
-     description varchar(200),
-     primary key (pid));
+    pid int auto_increment not null,
+    name varchar(30),
+    dateCreated timestamp not null default current_timestamp,
+    category enum('Services', 'Textbooks', 'Clothing', 'Beauty',
+                'Food', 'Home', 'Entertainment', 'Looking For', 'Other'),
+    priceRange enum('free', 'low', 'medium', 'high'),
+    paymentType enum('cash', 'venmo', 'other'),
+    pickUpLocation enum('Bates', 'Beebe','Cazenove', 'Cervantes', 'Claflin',
+                    'Dower', 'Freeman', 'Lake House', 'McAfee', 'Munger',
+                    'Pomeroy', 'Severance', 'Shafer', 'Stone-Davis','Tower Court', 
+                    'Cedar Lodge', 'French House', 'Other', 'Instead' ),
+    description varchar(200),
+    primary key (pid)
+);
 
 CREATE TABLE item (
-     iid int auto_increment,
-     name varchar(30),
-     price float(9,2),
-     photo image,
-     quality enum('new', 'like new', 'gently used', 'used', 'heavily used', 'poor'),
-     isRented boolean,
-     photo varchar(50),
-     primary key (iid));
+    iid int auto_increment not null,
+    name varchar(30),
+    price float(9,2),
+    photo blob,
+    quality enum('new', 'like new', 'gently used', 'used', 'heavily used', 'poor'),
+    isRented boolean,
+    description varchar(100),
+    primary key (iid)
+);
 
 CREATE TABLE bookmark (
-    uid,
-    pid, 
-    foreign key(uid) references user(uid),
-    foreign key(pid) references post(pid));
+    uid int,
+    pid int, 
+    primary key (uid, pid)
+);
 
 CREATE TABLE interested (
-    uid,
-    iid, 
-    foreign key(uid) references user(uid),
-    foreign key(iid) references item(iid));
+    uid int,
+    iid int, 
+    primary key (uid, iid)
+);
 
 CREATE TABLE postsItems (
-    iid,
-    pid, 
-    foreign key(iid) references item(iid),
-    foreign key(pid) references post(pid));
+    iid int,
+    pid int, 
+    primary key (iid, pid)
+);

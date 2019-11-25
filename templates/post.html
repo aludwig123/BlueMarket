@@ -1,0 +1,23 @@
+<!--BlueMarket, Authors: Isabel Bryant, Analiese Ludwig, Hannah Yi-->
+<!--post-->
+
+{% extends "feed.html" %}
+
+{% block content %}
+{% for post in posts %}
+    <h1>{{post.name}}</h1>
+    <div class="postContainer">
+        <img id="postImage" src="{{url_for('static', filename= 'pens.jpg')}}" alt="item">
+    </div>
+    <p><b>Price Range: </b>{{post.priceRange}} </p> 
+    <p><b>Price Type: </b>{{post.paymentType}}</p>
+    <p><b>Description: </b>{{post.description}}</p>
+    <p><b>Post Date: </b>{{post.dateCreated}}</p>
+    <p><b>Category: </b>{{post.category}}</p>
+    <p><b>Pick up Location: </b>{{post.pickUpLocation}}</p>
+
+{% endfor %}
+<p><input type="submit" value="Bookmark">
+<input type="submit" value="Interested"></p>
+
+{% endblock %}
