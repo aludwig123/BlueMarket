@@ -46,3 +46,16 @@ def getMyPosts(conn, user):
     curs = dbi.dictCursor(conn)
     curs.execute('select * from post where uid = %s', [user])
     return curs.fetchall()
+
+def bookmarkPost(conn, uid, pid):
+    curs = dbi.dictCursor(conn)
+    curs.execute('insert into bookmark values(%s, %s)', [uid, pid])
+
+def getBookmarked(conn, user):
+    curs = dbi.dictCursor(conn)
+    curs.execute('select * from post where uid = %s', [user])
+    return curs.fetchall()
+
+def interestedIn(conn, uid, iid):
+    curs = dbi.dictCursor(conn)
+    curs.execute('insert into interested values(%s, %s)', [uid, iid])

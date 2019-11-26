@@ -4,7 +4,7 @@
 {% extends "feed.html" %}
 
 {% block content %}
-{% for post in posts %}
+<!-- {% for post in posts %} -->
     <h1>{{post.name}}</h1>
     <div class="postContainer">
         <img id="postImage" src="{{url_for('static', filename= 'pens.jpg')}}" alt="item">
@@ -16,7 +16,7 @@
     <p><b>Category: </b>{{post.category}}</p>
     <p><b>Pick up Location: </b>{{post.pickUpLocation}}</p>
 
-{% endfor %}
+<!-- {% endfor %} -->
 <p><input type="submit" value="Bookmark">
 <input type="submit" value="Interested"></p>
 
