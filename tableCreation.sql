@@ -10,9 +10,8 @@ drop table if exists interested;
 drop table if exists postsItems;
 
 CREATE TABLE user (
-    uid varchar(10),
+    uid varchar(30),
     name varchar(50),
-    email varchar(30),
     gradYear varchar(4),
     avatar blob,
     primary key (uid)
@@ -20,16 +19,17 @@ CREATE TABLE user (
 
 CREATE TABLE post (
     pid int auto_increment not null,
+    uid varchar(30),
     name varchar(30),
     dateCreated timestamp not null default current_timestamp,
     category enum('Services', 'Textbooks', 'Clothing', 'Beauty',
-                'Food', 'Home', 'Entertainment', 'Looking_For', 'School_Supplies', 'Other'),
+                'Food', 'Home', 'Entertainment', 'Looking-For', 'School-Supplies', 'Other'),
     priceRange enum('free', 'low', 'medium', 'high'),
     paymentType enum('n/a', 'cash', 'venmo', 'other'),
     pickUpLocation enum('Bates', 'Beebe','Cazenove', 'Cervantes', 'Claflin',
                     'Dower', 'Freeman', 'Lake_House', 'McAfee', 'Munger',
-                    'Pomeroy', 'Severance', 'Shafer', 'Stone-Davis','Tower_Court', 
-                    'Cedar_Lodge', 'French_House', 'Other', 'Instead' ),
+                    'Pomeroy', 'Severance', 'Shafer', 'Stone-Davis','Tower-Court', 
+                    'Cedar-Lodge', 'French-House', 'Other', 'Instead' ),
     description varchar(200),
     primary key (pid)
 );
@@ -39,7 +39,7 @@ CREATE TABLE item (
     name varchar(30),
     price float(9,2),
     photo blob,
-    quality enum('new', 'like_new', 'gently_used', 'used', 'heavily_used', 'poor'),
+    quality enum('new', 'like-new', 'gently-used', 'used', 'heavily-used', 'poor'),
     isRented boolean,
     description varchar(100),
     primary key (iid)

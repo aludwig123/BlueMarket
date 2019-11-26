@@ -68,8 +68,43 @@
     <p><label for="description">Description
         <textarea id="description" name="description"></textarea>
     </label></p>
-    <p><input type="submit" value="Add Item"></p>
+
+    <div id='items'></div>
+
+    <p><input class='add-item-button' type="button" value="Add Item"></p>
     <p><input type="submit" value="Submit Post"></p>
 </form>
 
+<script>
+$("#make-post-form").on('click', ".add-item-button", function(){
+    console.log("you clicked the button!")
+    var element = document.getElementById('items');
+    element.innerHTML = element.innerHTML + 
+    '<form id="add-item-form" method="post" action="/addItem/">'+
+    '<p><label for="item">Item Name<input id="item" name="item"></label></p>'+
+    '<p><label for="price">Price<input id="price" name="price"></label></p>'+
+    '<p><label for="quality">Quality'+
+        '<select id="quality" name="quality">'+
+            '<option value="">Choose Quality</option>'+
+            '<option value="new">New</option>'+
+            '<option value="like-new">Like New</option>'+
+            '<option value="gently-used">Gently Used</option>'+
+            '<option value="used">Used</option>'+
+            '<option value="heavily-used">Heavily Used</option>'+
+            '<option value="poor">Poor</option>'+
+        '</select>'+
+    '</label></p>'+
+    '<p><label for="isRented">Rented?'+
+        '<input type="radio" name="isRented" value="True">Yes</input>'+
+        '<input type="radio" name="isRented" value="False">No</input>'+
+    '</label>'+
+    '</p>'+
+    '<p><label for="description">Description'+
+        '<textarea id="description" name="description"></textarea>'+
+    '</label></p>'
+});
+
+</script>
+
 {% endblock %}
+

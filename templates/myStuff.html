@@ -3,9 +3,43 @@
 
 {% extends "feed.html" %}
 
+{% block subnavigation %}
+<div id='feed-navigation'>
+        <ul>
+            <a href="{{url_for('myStuff')}}">My Posts</a>
+            <a href="{{url_for('myStuff')}}">Bookmarked Posts</a>
+            <a href="{{url_for('myStuff')}}">My Purchases</a>
+        </ul>
+</div>
+{% endblock %}
 {% block content %}
-<h1>My Stuff</h1>
-<h2>Bookmarked Posts:</h2>
-<h2>Items I'm Interested In:</h2>
+<h1>My Posts</h1>
+
+{% for post in posts %}
+<div class="card" id="{{post.pid}}">
+    <img id="feedImage" src="{{url_for('static', filename= 'pens.jpg')}}" alt="item">
+    <!-- <img src="{{url_for('static', filename="{{post.image}}")}}" alt="item"> -->
+    <div class="container">
+        <h4>{{post.name}} <br> Seller: {{post.uid}}</h4>
+        <p>Price Range: {% if post.priceRange == 'free' %}
+            Free
+            {% elif post.priceRange == 'low' %}
+            $
+            {% elif post.priceRange == 'medium' %}
+            $$
+            {% elif post.priceRange == 'high' %}
+            $$$
+            {% endif %}
+        <br>Payment Type: {{post.paymentType}}</p>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+$("body").on('click', ".card", function(){
+    var postID = this.id
+    location.href = '/post/' + postID;
+});
+</script>
 
 {% endblock %}

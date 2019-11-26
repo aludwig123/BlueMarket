@@ -12,11 +12,11 @@ def getConn():
     conn.select_db('bluemark_db')
     return conn
 
-def makePost(conn,title,category,pRange,pType,pickup,description):
+def makePost(conn,user,title,category,pRange,pType,pickup,description):
     # makes simple post with no items
     curs = dbi.dictCursor(conn)
-    curs.execute('insert into post(name,category,priceRange,paymentType,pickUpLocation,description) values (%s,%s,%s,%s,%s,%s)',
-                [title,category,pRange,pType,pickup,description])
+    curs.execute('insert into post(uid,name,category,priceRange,paymentType,pickUpLocation,description) values (%s,%s,%s,%s,%s,%s,%s)',
+                [user,title,category,pRange,pType,pickup,description])
 
 def getFeed(conn):
     #get home feed
@@ -34,4 +34,15 @@ def getPost(conn, pid):
     #get all post info given id
     curs = dbi.dictCursor(conn)
     curs.execute('select * from post where pid = %s', [pid])
+    return curs.fetchall()
+
+def login(conn, user):
+    curs = dbi.dictCursor(conn)
+    curs.execute('select * from user where uid = %s', [user])
+    if not curs.fetchall(): #if this user does not exist in the user table yet
+        curs.execute('insert into user(uid) values(%s)', [user])
+
+def getMyPosts(conn, user):
+    curs = dbi.dictCursor(conn)
+    curs.execute('select * from post where uid = %s', [user])
     return curs.fetchall()

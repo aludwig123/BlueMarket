@@ -13,6 +13,8 @@
 </head>
 {% endblock %}
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
 {% block navigation %}
 <div id='navigation'>
     <ul>
@@ -23,7 +25,7 @@
             <input id="searchterm" placeholder="Search" name="searchterm">
             <button id="searchbutton" type="submit" name="submit" value="Search">Search</button>
         </form>
-        <!-- <button id="logout" type="submit" name='logout'>Logout</button> -->
+        <a href="{{url_for('logout')}}">Logout</a>
     </ul>
 </div>
 {% endblock %}
@@ -36,55 +38,41 @@
             <a href="{{url_for('feedCategory', category = 'Entertainment')}}">Entertainment</a>
             <a href="{{url_for('feedCategory', category = 'Food')}}">Food</a>
             <a href="{{url_for('feedCategory', category = 'Home')}}">Home</a>
-            <a href="{{url_for('feedCategory', category = 'Looking_For')}}">Looking For</a>
-            <a href="{{url_for('feedCategory', category = 'School_Supplies')}}">School Supplies</a>
+            <a href="{{url_for('feedCategory', category = 'Looking-For')}}">Looking For</a>
+            <a href="{{url_for('feedCategory', category = 'School-Supplies')}}">School Supplies</a>
             <a href="{{url_for('feedCategory', category = 'Services')}}">Services</a>
             <a href="{{url_for('feedCategory', category = 'Textbooks')}}">Textbooks</a>
             <a href="{{url_for('feedCategory', category = 'Other')}}">Other</a>
         </ul>
-    </div>
+</div>
 {% endblock %}
-
+<body>
 {% block content %}
 
-
-<!-- <div class="card">
-    <img src="{{url_for('static', filename= 'pens.jpg')}}" alt="item">
-    <div class="container">
-        <h4>Pens</h4>
-        <p>Billie $ Venmo/Cash</p>
-        <p>not rented</p>
-    </div>
-</div>
-
-<div class="card">
-    <img src="{{url_for('static', filename= 'pens.jpg')}}" alt="item">
-    <div class="container">
-        <h4>Pens</h4>
-        <p>Billie $ Venmo/Cash</p>
-        <p>not rented</p>
-    </div>
-</div>
-
-<div class="card">
-    <img src="{{url_for('static', filename= 'pens.jpg')}}" alt="item">
-    <div class="container">
-        <h4>Pens</h4>
-        <p>Billie $ Venmo/Cash</p>
-        <p>not rented</p>
-    </div>
-</div> -->
-
 {% for post in posts %}
-<div class="card">
+<div class="card" id="{{post.pid}}">
     <img id="feedImage" src="{{url_for('static', filename= 'pens.jpg')}}" alt="item">
     <!-- <img src="{{url_for('static', filename="{{post.image}}")}}" alt="item"> -->
     <div class="container">
-        <h4>{{post.name}}</h4>
-        <p>{{post.priceRange}} {{post.paymentType}}</p>
-        <!-- <p>{{post.rented}}</p> -->
+        <h4>{{post.name}} <br> Seller: {{post.uid}}</h4>
+        <p>Price Range: {% if post.priceRange == 'free' %}
+            Free
+            {% elif post.priceRange == 'low' %}
+            $
+            {% elif post.priceRange == 'medium' %}
+            $$
+            {% elif post.priceRange == 'high' %}
+            $$$
+            {% endif %}
+        <br>Payment Type: {{post.paymentType}}</p>
     </div>
 </div>
-
 {% endfor %}
+<script>
+$("body").on('click', ".card", function(){
+    var postID = this.id
+    location.href = '/post/' + postID;
+});
+</script>
 {% endblock %}
+</body>
