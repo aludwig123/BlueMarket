@@ -6,7 +6,8 @@
 from flask import (Flask, render_template, request, url_for, redirect, flash, session)
 from datetime import datetime
 import random
-import dbInteractions 
+import dbInteractions
+from flask_cas import CAS
 
 app = Flask(__name__)
 
@@ -16,18 +17,30 @@ app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
                                           '0123456789'))
                            for i in range(20) ])
 
+CAS(app)
+
+app.config['CAS_SERVER'] = 'https://login.wellesley.edu:443'
+app.config['CAS_LOGIN_ROUTE'] = '/module.php/casserver/cas.php/login'
+app.config['CAS_LOGOUT_ROUTE'] = '/module.php/casserver/cas.php/logout'
+app.config['CAS_VALIDATE_ROUTE'] = '/module.php/casserver/serviceValidate.php'
+app.config['CAS_AFTER_LOGIN'] = 'logged_in'
+# the following doesn't work :-(
+app.config['CAS_AFTER_LOGOUT'] = 'after_logout'
+
 @app.route('/')
-def loginPage():
+def index():
+    print('Session keys: ', list(session.keys()))
+    if 'CAS_USERNAME' in session:
+        user = session['CAS_USERNAME']
+        conn = dbInteractions.getConn()
+        dbInteractions.login(conn, user)
+        return redirect(url_for('feed'))
     return render_template('login.html')
 
-@app.route('/login/', methods = ['GET', 'POST'])
-def login():
-    session['user'] = request.form.get('loginEmail')
-    user = session['user']
-    print(user)
-    conn = dbInteractions.getConn()
-    dbInteractions.login(conn, user)
-    return redirect(url_for('feed'))
+@app.route('/logged_in/', methods = ['GET', 'POST'])
+def logged_in():
+    flash("Successfully logged in!")
+    return redirect(url_for('index'))
 
 @app.route('/feed/')
 def feed():
@@ -60,14 +73,14 @@ def searchItems():
 @app.route('/myStuff/')
 def myStuff():
     conn = dbInteractions.getConn()
-    posts = dbInteractions.getMyPosts(conn, session['user'])
+    posts = dbInteractions.getMyPosts(conn, session['CAS_USERNAME'])
     return render_template('myStuff.html', posts = posts)
 
 @app.route('/deletePost/<pid>', methods = ['GET', 'POST'])
 def deletePost(pid):
     pid = int(pid)
     conn = dbInteractions.getConn()
-    posts = dbInteractions.getMyPosts(conn, session['user'])
+    posts = dbInteractions.getMyPosts(conn, session['CAS_USERNAME'])
     if pid in [post['pid'] for post in posts]:
         dbInteractions.deletePost(conn, pid)
     return redirect(url_for('myStuff'))
@@ -84,7 +97,7 @@ def makePost():
         pType = request.form.get('payment-type')
         pickup = request.form.get('pickup-location')
         description = request.form.get('description')
-        dbInteractions.makePost(conn,session['user'],title,category,pRange,pType,pickup,description)
+        dbInteractions.makePost(conn,session['CAS_USERNAME'],title,category,pRange,pType,pickup,description)
         return redirect(url_for('feed'))
 
 @app.route('/addItem/', methods = ['GET', 'POST'])
@@ -110,7 +123,14 @@ def logout():
 
 
 if __name__ == '__main__':
-    import os
-    uid = os.getuid()
+    import os, sys
+    if len(sys.argv) > 1:
+        port=int(sys.argv[1])
+        if not(1943 <= port <= 1950):
+            print('For CAS, choose a port from 1943 to 1950')
+            sys.exit()
+    else:
+        port=os.getuid()
+    # uid = os.getuid()
     app.debug = True
-    app.run('0.0.0.0',uid)
+    app.run('0.0.0.0',port)

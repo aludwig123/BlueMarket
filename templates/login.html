@@ -13,9 +13,6 @@
     <div id='login-card' class='card'>
         <h1>Welcome to BlueMarket!</h1>
         <p>Please sign in using your Wellesley Email:</p>
-        <form id="login" method=POST action="{{url_for('login')}}">
-            <input id="loginEmail" placeholder="Wendy@wellesley.edu" name="loginEmail">
-            <button id="loginbutton" type="submit" name="submit" value="Login">Login</button>
-        </form>
+        <form method="GET" action="/login/"><button>login</button></form>
     </div>
 </body>
