@@ -9,7 +9,7 @@
     <meta charset='utf-8'>
     <meta name=authors content="Isabel Bryant, Analiese Ludwig, Hannah Yi">
     <title>BlueMarket-Feed</title>
-    <link rel='stylesheet' href="/static/style.css">
+    <link rel='stylesheet' href="{{url_for('static', filename = 'style.css')}}">
 </head>
 {% endblock %}
 
@@ -21,7 +21,7 @@
         <a href="{{url_for('feed')}}">Feed</a>
         <a href="{{url_for('myStuff')}}">My Stuff</a>
         <a href="{{url_for('makePost')}}">Make a Post</a>
-        <form id="search" method=GET action="/query/">
+        <form id="search" method=GET action="{{url_for('searchItems')}}">
             <input id="searchterm" placeholder="Search" name="searchterm">
             <button id="searchbutton" type="submit" name="submit" value="Search">Search</button>
         </form>
@@ -65,14 +65,11 @@
             $$$
             {% endif %}
         <br>Payment Type: {{post.paymentType}}</p>
+        <form action='{{url_for("readPost", pid = post.pid)}}'>
+            <button type="submit" class="detailButton">Details</button>
+        </form>
     </div>
 </div>
 {% endfor %}
-<script>
-$("body").on('click', ".card", function(){
-    var postID = this.id
-    location.href = '/post/' + postID;
-});
-</script>
 {% endblock %}
 </body>

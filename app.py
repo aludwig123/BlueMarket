@@ -6,7 +6,7 @@
 from flask import (Flask, render_template, request, url_for, redirect, flash, session)
 from datetime import datetime
 import random
-import functions 
+import dbInteractions 
 
 app = Flask(__name__)
 
@@ -25,37 +25,56 @@ def login():
     session['user'] = request.form.get('loginEmail')
     user = session['user']
     print(user)
-    conn = functions.getConn()
-    functions.login(conn, user)
+    conn = dbInteractions.getConn()
+    dbInteractions.login(conn, user)
     return redirect(url_for('feed'))
 
 @app.route('/feed/')
 def feed():
-    conn = functions.getConn()
-    feed = functions.getFeed(conn)
+    conn = dbInteractions.getConn()
+    feed = dbInteractions.getFeed(conn)
     return render_template('feed.html', posts = feed)
 
 @app.route('/feed/<category>/')
 def feedCategory(category):
-    conn = functions.getConn()
-    feed = functions.getFeedCategory(conn,category)
+    conn = dbInteractions.getConn()
+    feed = dbInteractions.getFeedCategory(conn,category)
     return render_template('feed.html', posts = feed)
 
 @app.route('/post/<pid>')
 def readPost(pid):
-    conn = functions.getConn()
-    post = functions.getPost(conn,pid)
+    conn = dbInteractions.getConn()
+    post = dbInteractions.getPost(conn,pid)
     return render_template('post.html', posts = post)
+
+@app.route('/search/', methods = ['GET', 'POST'])
+def searchItems():
+    conn = dbInteractions.getConn()
+    if request.method == 'GET':
+        return redirect(url_for('feed'))
+    else:
+        query = request.args.get('searchterm')
+        posts = dbInteractions.searchItems(conn,query)
+        return render_template('feed.html', posts = posts)
 
 @app.route('/myStuff/')
 def myStuff():
-    conn = functions.getConn()
-    posts = functions.getMyPosts(conn, session['user'])
+    conn = dbInteractions.getConn()
+    posts = dbInteractions.getMyPosts(conn, session['user'])
     return render_template('myStuff.html', posts = posts)
+
+@app.route('/deletePost/<pid>', methods = ['GET', 'POST'])
+def deletePost(pid):
+    pid = int(pid)
+    conn = dbInteractions.getConn()
+    posts = dbInteractions.getMyPosts(conn, session['user'])
+    if pid in [post['pid'] for post in posts]:
+        dbInteractions.deletePost(conn, pid)
+    return redirect(url_for('myStuff'))
 
 @app.route('/makePost/', methods = ['GET', 'POST'])
 def makePost():
-    conn = functions.getConn()
+    conn = dbInteractions.getConn()
     if request.method == 'GET':
         return render_template('makePost.html')
     else: 
@@ -65,12 +84,12 @@ def makePost():
         pType = request.form.get('payment-type')
         pickup = request.form.get('pickup-location')
         description = request.form.get('description')
-        functions.makePost(conn,session['user'],title,category,pRange,pType,pickup,description)
+        dbInteractions.makePost(conn,session['user'],title,category,pRange,pType,pickup,description)
         return redirect(url_for('feed'))
 
 @app.route('/addItem/', methods = ['GET', 'POST'])
 def addItem():
-    conn = functions.getConn()
+    conn = dbInteractions.getConn()
     if request.method == 'GET':
         return render_template('makePost.html')
     else:
@@ -82,7 +101,7 @@ def addItem():
         else:
             isRented = 0
         description = request.form.get('description')
-        #functions.addItem(conn, item, price, quality, isRented, description)
+        #dbInteractions.addItem(conn, item, price, quality, isRented, description)
         return redirect(url_for('feed'))
 
 @app.route('/logout/', methods = ['GET', 'POST'])
