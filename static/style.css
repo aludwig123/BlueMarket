@@ -99,3 +99,7 @@
     padding: 2px 16px;
     float: left;
 }
+
+.detailButton {
+    float: right;
+}
