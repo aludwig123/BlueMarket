@@ -19,9 +19,6 @@
 
 {% for post in posts %}
 <div class="card" id="{{post.pid}}">
-
-    <button class="deleteButton" id="{{post.pid}}">Delete Post</button>
-
     <img id="feedImage" src="{{url_for('static', filename= 'pens.jpg')}}" alt="item">
     <!-- <img src="{{url_for('static', filename="{{post.image}}")}}" alt="item"> -->
     <div class="container">
@@ -42,23 +39,5 @@
     </div>
 </div>
 {% endfor %}
-<script>
-    $("body").on('click', ".deleteButton", function(){
-        console.log("clicked");
-        if(confirm("Are you sure you want to delete this post?")){
-            console.log("Deleting "+this.id+" from the database.");
-            // $.ajax({
-            //     type: "POST",
-            //     url: Flask.url_for('deletePost', pid=this.id),
-            // });
-            var id = this.id;
-            console.log(id);
-            //$.post("{{url_for('deletePost', pid = id)}}");
-            location.href = '/deletePost/' + this.id;
-    
-        }
-    });
-</script>
 {% endblock %}
 </body>
-

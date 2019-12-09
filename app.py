@@ -8,8 +8,10 @@ from datetime import datetime
 import random
 import dbInteractions
 from flask_cas import CAS
+from threading import Thread, Lock
 
 app = Flask(__name__)
+lock = Lock()
 
 #generate random secret key
 app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
@@ -60,6 +62,14 @@ def readPost(pid):
     post = dbInteractions.getPost(conn,pid)
     return render_template('post.html', posts = post)
 
+@app.route('/bookmark/<pid>')
+def bookmarkPost(pid):
+    print('reachedbookmark')
+    conn = dbInteractions.getConn()
+    user = session['CAS_USERNAME']
+    dbInteractions.bookmarkPost(conn, user, pid)
+    return redirect(request.referrer)
+
 @app.route('/search/', methods = ['GET', 'POST'])
 def searchItems():
     conn = dbInteractions.getConn()
@@ -67,7 +77,8 @@ def searchItems():
         return redirect(url_for('feed'))
     else:
         query = request.args.get('searchterm')
-        posts = dbInteractions.searchItems(conn,query)
+        pids = dbInteractions.getSearchPIDs(conn,query)
+        posts = [dbInteractions.getPost(conn,pid) for pid in pids]
         return render_template('feed.html', posts = posts)
 
 @app.route('/myStuff/')
@@ -75,6 +86,13 @@ def myStuff():
     conn = dbInteractions.getConn()
     posts = dbInteractions.getMyPosts(conn, session['CAS_USERNAME'])
     return render_template('myStuff.html', posts = posts)
+
+@app.route('/myStuff/bookmarked/')
+def getBookmarked():
+    conn = dbInteractions.getConn()
+    user = session['CAS_USERNAME']
+    posts = dbInteractions.getBookmarked(conn, user)
+    return render_template('bookmarkedPost.html', posts = posts)
 
 @app.route('/deletePost/<pid>', methods = ['GET', 'POST'])
 def deletePost(pid):
@@ -93,29 +111,28 @@ def makePost():
     else: 
         title = request.form.get('title')
         category = request.form.get('category')
+        print("category: " + category)
         pRange = request.form.get('price-range')
         pType = request.form.get('payment-type')
         pickup = request.form.get('pickup-location')
         description = request.form.get('description')
         dbInteractions.makePost(conn,session['CAS_USERNAME'],title,category,pRange,pType,pickup,description)
+
+        pid = dbInteractions.getLatestPid(conn)
+        numItemsTest = request.form.get('numItems')
+        print("numItemsTest" + str(numItemsTest))
+        numItems = 5
+        for i in range(1, numItems):
+            iName = request.form['item_' + str(i)]
+            iPrice = request.form['price_' + str(i)]
+            iPhoto = request.form['photo_' + str(i)]
+            iQuality = request.form['quality_' + str(i)]
+            iIsRented = request.form['isRented_' + str(i)]
+            iDescription = request.form['description_' + str(i)]
+            dbInteractions.addItem(conn, pid, iName, iPrice, iQuality, iIsRented, iDescription)
+
         return redirect(url_for('feed'))
 
-@app.route('/addItem/', methods = ['GET', 'POST'])
-def addItem():
-    conn = dbInteractions.getConn()
-    if request.method == 'GET':
-        return render_template('makePost.html')
-    else:
-        item = request.form.get('item')
-        price = request.form.get('price')
-        quality = request.form.get('quality')
-        if (request.form.get('isRented') == "True"):
-            isRented = 1
-        else:
-            isRented = 0
-        description = request.form.get('description')
-        #dbInteractions.addItem(conn, item, price, quality, isRented, description)
-        return redirect(url_for('feed'))
 
 @app.route('/logout/', methods = ['GET', 'POST'])
 def logout():

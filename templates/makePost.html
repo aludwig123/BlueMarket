@@ -68,30 +68,29 @@
     <p><label for="description">Description
         <textarea id="description" name="description"></textarea>
     </label></p>
-
-    <div id='itemTemplate'>
-        <form class="item" id='item_1' method="post" action="/addItem/">
-            <p><label for="item">Item Name<input id="item" name="item"></label></p>
-            <p><label for="price">Price<input id="price" name="price"></label></p>
-            <p><label for="quality">Quality
-                <select id="quality" name="quality">
-                    <option value="">Choose Quality</option>
-                    <option value="new">New</option>
-                    <option value="like-new">Like New</option>
-                    <option value="gently-used">Gently Used</option>
-                    <option value="used">Used</option>
-                    <option value="heavily-used">Heavily Used</option>
-                    <option value="poor">Poor</option>
-                </select>
-            </label></p>
-            <p><label for="isRented">Rented?
-                <input type="radio" name="isRented" value="True">Yes</input>
-                <input type="radio" name="isRented" value="False">No</input>
-            </label>
-            </p>
-            <p><label for="description">Description
-                <textarea id="description" name="description"></textarea>
-            </label></p>
+    <div id='numItems' value='1'></div>
+    <div name='itemTemplate'>
+        <p><label for="item">Item Name<input name="item_1"></label></p>
+        <p><label for="price">Price<input id="price" name="price_1"></label></p>
+        <p><label for="quality">Quality
+            <select id="quality" name="quality_1">
+                <option value="">Choose Quality</option>
+                <option value="new">New</option>
+                <option value="like-new">Like New</option>
+                <option value="gently-used">Gently Used</option>
+                <option value="used">Used</option>
+                <option value="heavily-used">Heavily Used</option>
+                <option value="poor">Poor</option>
+            </select>
+        </label></p>
+        <p><label for="isRented" name="isRented">Rented?
+            <input type="radio" name="isRented_1" value="True">Yes</input>
+            <input type="radio" name="isRented_1" value="False">No</input>
+        </label>
+        </p>
+        <p><label for="description">Description
+            <textarea id="description" name="description_1"></textarea>
+        </label></p>
     </div>
     <div id='items'></div>
     <p><input class='add-item-button' type="button" value="Add Item"></p>
@@ -101,15 +100,16 @@
 <script>
     var numItems = 1;
 $("#make-post-form").on('click', ".add-item-button", function(){
-    console.log("you clicked the button!");
-    // var element = document.getElementById('itemTemplate');
-    $("#itemTemplate").append($('#item_1').clone());
-    console.log("appended item");
-    $("#itemTemplate").find("#item_" + numItems).attr("id", "item_"+(numItems+1));
+    $("#items").append($('[name = itemTemplate]').clone());
     numItems++;
+    $("#items").find("[name = itemTemplate]").attr("name", "item_"+(numItems));
+    $("#items").find("[name = item_1]").attr("name", "item_"+(numItems));
+    $("#items").find("[name = price_1]").attr("name", "price_"+(numItems));
+    $("#items").find("[name = quality_1]").attr("name", "quality_"+(numItems));
+    $("#items").find("[name = isRented_1]").attr("name", "isRented_"+(numItems));
+    $("#items").find("[name = description_1]").attr("name", "description_"+(numItems));
+    $('#numItems').attr("value", numItems);
 });
-
-
 </script>
 
 {% endblock %}
