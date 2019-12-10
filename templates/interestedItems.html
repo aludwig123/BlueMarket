@@ -1,5 +1,5 @@
 <!--BlueMarket, Authors: Isabel Bryant, Analiese Ludwig, Hannah Yi-->
-<!--bookmarkedPost-->
+<!--interestedPost-->
 
 {% extends "feed.html" %}
 
@@ -12,29 +12,23 @@
         </ul>
 </div>
 {% endblock %}
-<h1>Bookmarked Posts</h1>
+<h1>My Interested Posts</h1>
 
 <body>
 {% block content %}
 
-{% for post in posts %}
-<div class="card" id="{{post.pid}}">
+{% for item in items %}
+<div class="card" id="{{item.iid}}">
     <img id="feedImage" src="{{url_for('static', filename= 'pens.jpg')}}" alt="item">
     <!-- <img src="{{url_for('static', filename="{{post.image}}")}}" alt="item"> -->
     <div class="container">
-        <h4>{{post.name}} <br> Seller: {{post.uid}}</h4>
-        <p>Price Range: {% if post.priceRange == 'free' %}
-            Free
-            {% elif post.priceRange == 'low' %}
-            $
-            {% elif post.priceRange == 'medium' %}
-            $$
-            {% elif post.priceRange == 'high' %}
-            $$$
-            {% endif %}
-        <br>Payment Type: {{post.paymentType}}</p>
-        <form action='{{url_for("readPost", pid = post.pid)}}'>
-            <button type="submit" class="detailButton">Details</button>
+        <p><b>Name: </b>{{item.name}} </p> 
+        <p><b>Price: </b>{{item.price}} </p> 
+        <p><b>Quality: </b>{{item.quality}}</p>
+        <p><b>Rented: </b>{{item.isRented}}</p>
+        <p><b>Description: </b>{{item.description}}</p>
+        <form action='{{url_for("readPost", pid = item.pid)}}'>
+            <button type="submit" class="originalPost">Original Post</button>
         </form>
     </div>
 </div>

@@ -77,11 +77,23 @@ def interestedIn(conn, uid, iid):
     curs = dbi.dictCursor(conn)
     curs.execute('insert into interested values(%s, %s)', [uid, iid])
 
+def getInterestedIn(conn, uid):
+    #gets items the given user is interested in 
+    curs = dbi.dictCursor(conn)
+    curs.execute('''select * from item where iid in (select iid from interested where uid = %s)''', [uid])
+    return curs.fetchall()
+
 def addItem(conn, pid, name, price, quality, isRented, description):
     #insert a new item into the item table
     curs = dbi.dictCursor(conn)
     curs.execute('''insert into item(pid, name, price, quality, isRented, description)
                     values(%s,%s,%s,%s,%s,%s)''', [pid, name, price, quality, isRented, description])
+
+def getPostItems(conn, pid):
+    #get items associated with pid
+    curs = dbi.dictCursor(conn)
+    curs.execute('''select * from item where pid = %s''', [pid])
+    return curs.fetchall()
 
 def getLatestPid(conn):
     #returns the latest pid
