@@ -7,7 +7,7 @@
 {% for post in posts %}
     <h1>{{post.name}}</h1>
     <div class="postContainer">
-        <img id="postImage" src="{{url_for('static', filename= 'pens.jpg')}}" alt="item">
+        <img id="postImage" src="{{url_for('static', filename= 'placeholder.png')}}" alt="item">
     </div>
     <p><b>Price Range: </b>{{post.priceRange}} </p> 
     <p><b>Price Type: </b>{{post.paymentType}}</p>
@@ -20,19 +20,23 @@
         <button type="submit" class="Bookmark">Bookmark Post</button>
     </form>
 {% endfor %}
-
+<p style='clear:left'></p>
+<br>
+<h2>Items:</h2>
 {% for item in items %}
-    <h1>{{item.name}}</h1>
-    <div class="itemContainer">
-        <img id="itemImage" src="{{url_for('static', filename= 'pens.jpg')}}" alt="item">
-    </div>
-    <p><b>Price: </b>{{item.price}} </p> 
-    <p><b>Quality: </b>{{item.quality}}</p>
-    <p><b>Rented: </b>{{item.isRented}}</p>
-    <p><b>Description: </b>{{item.description}}</p>
+    <div class='post-item'>
+        <h3>{{item.name}}</h3>
+        <div class="itemContainer">
+            <img class="itemImage" src="{{url_for('static', filename= 'placeholder.png')}}" alt="item">
+        </div>
+        <p><b>Price: </b>{{item.price}} </p> 
+        <p><b>Quality: </b>{{item.quality}}</p>
+        <p><b>Rented: </b>{{item.isRented}}</p>
+        <p><b>Description: </b>{{item.description}}</p>
 
-    <form action='{{url_for("interestedItem", iid= item.iid)}}'>
-        <button type="submit" class="Interested">Interested In</button>
-    </form>
+        <form action='{{url_for("interestedItem", iid= item.iid)}}'>
+            <button type="submit" class="Interested">Interested In</button>
+        </form>
+    <br></div>
 {% endfor %}
 {% endblock %}

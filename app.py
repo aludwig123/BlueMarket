@@ -8,10 +8,8 @@ from datetime import datetime
 import random
 import dbInteractions
 from flask_cas import CAS
-from threading import Thread, Lock
 
 app = Flask(__name__)
-lock = Lock()
 
 #generate random secret key
 app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
@@ -31,8 +29,8 @@ app.config['CAS_AFTER_LOGOUT'] = 'after_logout'
 
 @app.route('/')
 def index():
-    #user logs into app using their Wellesley authentication
-    print('Session keys: ', list(session.keys()))
+    '''User logs into app using their Wellesley authentication.
+        After authentication, redirect to feed.'''
     if 'CAS_USERNAME' in session:
         user = session['CAS_USERNAME']
         conn = dbInteractions.getConn()
@@ -42,27 +40,28 @@ def index():
 
 @app.route('/logged_in/', methods = ['GET', 'POST'])
 def logged_in():
-    #user has successfully logged in
+    '''User has successfully logged in, redirect to index route.'''
     flash("Successfully logged in!")
     return redirect(url_for('index'))
 
 @app.route('/feed/')
 def feed():
-    #gets the entire feed, all the posts that exist in the database
+    '''Gets the entire feed aka all the posts that exist in the database.
+        Displays them in reverse chronological order.'''
     conn = dbInteractions.getConn()
     feed = dbInteractions.getFeed(conn)
     return render_template('feed.html', posts = feed)
 
 @app.route('/feed/<category>/')
 def feedCategory(category):
-    #displays all posts with given category
+    '''Displays all posts with given category'''
     conn = dbInteractions.getConn()
     feed = dbInteractions.getFeedCategory(conn,category)
     return render_template('feed.html', posts = feed)
 
 @app.route('/post/<pid>/')
 def readPost(pid):
-    #displays all the details of a post including its items given a post id
+    '''Displays all the details of a post including its items, given the post id'''
     conn = dbInteractions.getConn()
     post = dbInteractions.getPost(conn,pid)
     items = dbInteractions.getPostItems(conn, pid)
@@ -70,8 +69,7 @@ def readPost(pid):
 
 @app.route('/bookmark/<pid>/')
 def bookmarkPost(pid):
-    #bookmark post given post id, using user id 
-    print('reachedbookmark')
+    '''Bookmark post given post id, using current user id'''
     conn = dbInteractions.getConn()
     user = session['CAS_USERNAME']
     dbInteractions.bookmarkPost(conn, user, pid)
@@ -79,7 +77,7 @@ def bookmarkPost(pid):
 
 @app.route('/search/', methods = ['GET', 'POST'])
 def searchItems():
-    #search for keywork in items and display item's post
+    '''Search items for given keyword and display each matching item's parent post'''
     conn = dbInteractions.getConn()
     if request.method == 'GET':
         query = request.args.get('searchterm')
@@ -89,14 +87,14 @@ def searchItems():
 
 @app.route('/myStuff/')
 def myStuff():
-    #displays all posts made by user
+    '''Displays all posts created by the current user'''
     conn = dbInteractions.getConn()
     posts = dbInteractions.getMyPosts(conn, session['CAS_USERNAME'])
     return render_template('myStuff.html', posts = posts)
 
 @app.route('/myStuff/bookmarked/')
 def getBookmarked():
-    #displays all posts bookmarked by user
+    '''Displays all posts bookmarked by the current user'''
     conn = dbInteractions.getConn()
     user = session['CAS_USERNAME']
     posts = dbInteractions.getBookmarked(conn, user)
@@ -104,7 +102,7 @@ def getBookmarked():
 
 @app.route('/interested/<iid>/')
 def interestedItem(iid):
-    #mark interested in item by user
+    '''User marks that they are interested in an item'''
     conn = dbInteractions.getConn()
     user = session['CAS_USERNAME']
     dbInteractions.interestedIn(conn, user, iid)
@@ -112,7 +110,7 @@ def interestedItem(iid):
 
 @app.route('/myStuff/interested/')
 def getInterestedIn():
-    #displays all items interested in by user
+    '''Displays all items the current user is interested in'''
     conn = dbInteractions.getConn()
     user = session['CAS_USERNAME']
     items = dbInteractions.getInterestedIn(conn, user)
@@ -120,7 +118,7 @@ def getInterestedIn():
 
 @app.route('/deletePost/<pid>/', methods = ['GET', 'POST'])
 def deletePost(pid):
-    #delete post given pid, will delete it's items too
+    '''Delete post given pid, will delete it's items too via cascade'''
     pid = int(pid)
     conn = dbInteractions.getConn()
     posts = dbInteractions.getMyPosts(conn, session['CAS_USERNAME'])
@@ -130,39 +128,36 @@ def deletePost(pid):
 
 @app.route('/makePost/', methods = ['GET', 'POST'])
 def makePost():
-    #create post and add items if wanted
+    '''Create post and add a minimum of one item'''
     conn = dbInteractions.getConn()
     if request.method == 'GET':
         return render_template('makePost.html')
     else: 
         title = request.form.get('title')
         category = request.form.get('category')
-        print("category: " + category)
         pRange = request.form.get('price-range')
         pType = request.form.get('payment-type')
         pickup = request.form.get('pickup-location')
         description = request.form.get('description')
         pid = dbInteractions.makePost(conn,session['CAS_USERNAME'],title,category,pRange,pType,pickup,description)
 
-        #pid = dbInteractions.getLatestPid(conn)
-        numItemsTest = request.form['numItems']
-        print("numItemsTest" + str(numItemsTest))
-        numItems = 5
-        for i in range(1, numItems):
+        # iterate through each item and add it to item table 
+        numItems = request.form['numItems']
+        for i in range(1, int(numItems)+1):
             iName = request.form['item_' + str(i)]
             iPrice = request.form['price_' + str(i)]
             #iPhoto = request.form['photo_' + str(i)]
             iQuality = request.form['quality_' + str(i)]
             iIsRented = request.form['isRented_' + str(i)]
             iDescription = request.form['description_' + str(i)]
-            dbInteractions.addItem(conn, pid['max(pid)'], iName, iPrice, iQuality, iIsRented, iDescription)
-
+            dbInteractions.addItem(conn, pid['last_insert_id()'], iName, float(iPrice), iQuality, int(iIsRented), iDescription)
+        
         return redirect(url_for('feed'))
 
 
 @app.route('/logout/', methods = ['GET', 'POST'])
 def logout():
-    #log out user 
+    '''Log user out'''
     return redirect(url_for('loginPage'))
 
 
@@ -175,6 +170,5 @@ if __name__ == '__main__':
             sys.exit()
     else:
         port=os.getuid()
-    # uid = os.getuid()
     app.debug = True
     app.run('0.0.0.0',port)

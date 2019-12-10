@@ -12,10 +12,17 @@
   font-size: 17px;
 }
 
+#search {
+    float: right;
+}
+
+#logout-button {
+    float: right;
+}
+
 #navigation {
     overflow:hidden;
     background-color: rgba(99, 99, 247, 0.692);
-    
 }
 
 #navigation a {
@@ -73,6 +80,15 @@
     float: left;
 }
   
+.detailButton {
+    float: right;
+}
+
+.deleteButton {
+    float: right;
+    background-color: red;
+}
+
 #feedImage {
     width: 100%; /* or any custom size */
     height: 75%; 
@@ -85,12 +101,18 @@
     object-fit: cover;
 }
 
+#itemImage {
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover;
+}
+
 .card:hover {
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
 }
   
 .container {
-    padding: 2px 16px;
+    padding: 0px 16px;
 }
 
 .postContainer {
@@ -100,6 +122,11 @@
     float: left;
 }
 
-.detailButton {
+.originalPost {
     float: right;
+}
+
+.post-item {
+    float: left;
+    margin-right: 5px;
 }

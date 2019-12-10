@@ -8,7 +8,7 @@
         <ul>
             <a href="{{url_for('myStuff')}}">My Posts</a>
             <a href="{{url_for('getBookmarked')}}">Bookmarked Posts</a>
-            <a href="{{url_for('getInterestedIn')}}">My Purchases</a>
+            <a href="{{url_for('getInterestedIn')}}">Pending Purchases</a>
         </ul>
 </div>
 {% endblock %}
@@ -19,14 +19,11 @@
 
 {% for post in posts %}
 <div class="card" id="{{post.pid}}">
-
-    <button class="deleteButton" id="{{post.pid}}">Delete Post</button>
-
-    <img id="feedImage" src="{{url_for('static', filename= 'pens.jpg')}}" alt="item">
+    <img id="feedImage" src="{{url_for('static', filename= 'placeholder.png')}}" alt="item">
     <!-- <img src="{{url_for('static', filename="{{post.image}}")}}" alt="item"> -->
     <div class="container">
-        <h4>{{post.name}} <br> Seller: {{post.uid}}</h4>
-        <p>Price Range: {% if post.priceRange == 'free' %}
+        <p><h4>{{post.name}} <br> Seller: {{post.uid}}</h4>
+        Price Range: {% if post.priceRange == 'free' %}
             Free
             {% elif post.priceRange == 'low' %}
             $
@@ -35,27 +32,19 @@
             {% elif post.priceRange == 'high' %}
             $$$
             {% endif %}
-        <br>Payment Type: {{post.paymentType}}</p>
+        <br>Payment Type: {{post.paymentType}}
         <form action='{{url_for("readPost", pid = post.pid)}}'>
             <button type="submit" class="detailButton">Details</button>
+            <button class="deleteButton" id="{{post.pid}}">Delete Post</button>
         </form>
+    </p>
     </div>
 </div>
 {% endfor %}
 <script>
     $("body").on('click', ".deleteButton", function(){
-        console.log("clicked");
         if(confirm("Are you sure you want to delete this post?")){
-            console.log("Deleting "+this.id+" from the database.");
-            // $.ajax({
-            //     type: "POST",
-            //     url: Flask.url_for('deletePost', pid=this.id),
-            // });
-            var id = this.id;
-            console.log(id);
-            //$.post("{{url_for('deletePost', pid = id)}}");
-            location.href = '/deletePost/' + this.id;
-    
+              location.href = '/deletePost/' + this.id;  
         }
     });
 </script>

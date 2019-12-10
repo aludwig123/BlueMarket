@@ -1,17 +1,8 @@
 <!--BlueMarket, Authors: Isabel Bryant, Analiese Ludwig, Hannah Yi-->
 <!--bookmarkedPost-->
 
-{% extends "feed.html" %}
+{% extends "myStuff.html" %}
 
-{% block subnavigation %}
-<div id='feed-navigation'>
-        <ul>
-            <a href="{{url_for('myStuff')}}">My Posts</a>
-            <a href="{{url_for('getBookmarked')}}">Bookmarked Posts</a>
-            <a href="{{url_for('getInterestedIn')}}">My Purchases</a>
-        </ul>
-</div>
-{% endblock %}
 <h1>Bookmarked Posts</h1>
 
 <body>
@@ -19,7 +10,7 @@
 
 {% for post in posts %}
 <div class="card" id="{{post.pid}}">
-    <img id="feedImage" src="{{url_for('static', filename= 'pens.jpg')}}" alt="item">
+    <img id="feedImage" src="{{url_for('static', filename= 'placeholder.png')}}" alt="item">
     <!-- <img src="{{url_for('static', filename="{{post.image}}")}}" alt="item"> -->
     <div class="container">
         <h4>{{post.name}} <br> Seller: {{post.uid}}</h4>

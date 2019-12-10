@@ -28,7 +28,7 @@ CREATE TABLE post (
     category enum('Services', 'Textbooks', 'Clothing', 'Beauty',
                 'Food', 'Home', 'Entertainment', 'Looking-For', 'School-Supplies', 'Other'),
     priceRange enum('free', 'low', 'medium', 'high'),
-    paymentType enum('n/a', 'cash', 'venmo', 'other'),
+    paymentType enum('n/a', 'cash', 'venmo', 'cashVenmo', 'other'),
     pickUpLocation enum('Bates', 'Beebe','Cazenove', 'Cervantes', 'Claflin',
                     'Dower', 'Freeman', 'Lake-House', 'McAfee', 'Munger',
                     'Pomeroy', 'Severance', 'Shafer', 'Stone-Davis','Tower-Court', 

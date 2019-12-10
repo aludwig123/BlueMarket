@@ -1,17 +1,8 @@
 <!--BlueMarket, Authors: Isabel Bryant, Analiese Ludwig, Hannah Yi-->
 <!--interestedPost-->
 
-{% extends "feed.html" %}
+{% extends "myStuff.html" %}
 
-{% block subnavigation %}
-<div id='feed-navigation'>
-        <ul>
-            <a href="{{url_for('myStuff')}}">My Posts</a>
-            <a href="{{url_for('getBookmarked')}}">Bookmarked Posts</a>
-            <a href="{{url_for('getInterestedIn')}}">My Purchases</a>
-        </ul>
-</div>
-{% endblock %}
 <h1>My Interested Posts</h1>
 
 <body>
@@ -19,17 +10,17 @@
 
 {% for item in items %}
 <div class="card" id="{{item.iid}}">
-    <img id="feedImage" src="{{url_for('static', filename= 'pens.jpg')}}" alt="item">
+    <img id="feedImage" src="{{url_for('static', filename= 'placeholder.png')}}" alt="item">
     <!-- <img src="{{url_for('static', filename="{{post.image}}")}}" alt="item"> -->
     <div class="container">
-        <p><b>Name: </b>{{item.name}} </p> 
-        <p><b>Price: </b>{{item.price}} </p> 
-        <p><b>Quality: </b>{{item.quality}}</p>
-        <p><b>Rented: </b>{{item.isRented}}</p>
-        <p><b>Description: </b>{{item.description}}</p>
+        <p><b>Name: </b>{{item.name}}<br>
+        <b>Price: </b>{{item.price}}<br>
+        <b>Quality: </b>{{item.quality}}<br>
+        <b>Rented: </b>{{item.isRented}}<br>
+        <b>Description: </b>{{item.description}}<br>
         <form action='{{url_for("readPost", pid = item.pid)}}'>
             <button type="submit" class="originalPost">Original Post</button>
-        </form>
+        </form></p>
     </div>
 </div>
 {% endfor %}
