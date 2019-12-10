@@ -25,6 +25,11 @@
     background-color: rgba(99, 99, 247, 0.692);
 }
 
+#title {
+    color: white;
+    text-align: center;
+}
+
 #navigation a {
     float: left;
     display: block;

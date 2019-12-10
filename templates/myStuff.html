@@ -35,8 +35,8 @@
         <br>Payment Type: {{post.paymentType}}
         <form action='{{url_for("readPost", pid = post.pid)}}'>
             <button type="submit" class="detailButton">Details</button>
-            <button class="deleteButton" id="{{post.pid}}">Delete Post</button>
         </form>
+        <button class="deleteButton" id="{{post.pid}}">Delete Post</button>
     </p>
     </div>
 </div>
@@ -44,7 +44,7 @@
 <script>
     $("body").on('click', ".deleteButton", function(){
         if(confirm("Are you sure you want to delete this post?")){
-              location.href = '/deletePost/' + this.id;  
+            location.href = '/deletePost/' + this.id;  
         }
     });
 </script>

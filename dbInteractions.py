@@ -49,7 +49,7 @@ def login(conn, user):
 def getMyPosts(conn, user):
     '''Returns all posts by user given connection and user uid'''
     curs = dbi.dictCursor(conn)
-    curs.execute('select * from post where uid = %s', [user])
+    curs.execute('select * from post where uid = %s order by dateCreated DESC', [user])
     return curs.fetchall()
 
 def getSearchPIDs(conn, query):
