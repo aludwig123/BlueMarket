@@ -18,6 +18,8 @@ def makePost(conn,user,title,category,pRange,pType,pickup,description):
     curs = dbi.dictCursor(conn)
     curs.execute('insert into post(uid,name,category,priceRange,paymentType,pickUpLocation,description) values (%s,%s,%s,%s,%s,%s,%s)',
                 [user,title,category,pRange,pType,pickup,description])
+    curs.execute('select max(pid) from post where uid = %s',[user])
+    return curs.fetchone()
 
 def getFeed(conn):
     #get home feed

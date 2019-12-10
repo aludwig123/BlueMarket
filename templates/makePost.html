@@ -68,7 +68,7 @@
     <p><label for="description">Description
         <textarea id="description" name="description"></textarea>
     </label></p>
-    <div id='numItems' value='1'></div>
+    <input type="hidden" name="numItems" value='1'>
     <div name='itemTemplate'>
         <p><label for="item">Item Name<input name="item_1"></label></p>
         <p><label for="price">Price<input id="price" name="price_1"></label></p>
@@ -108,7 +108,7 @@ $("#make-post-form").on('click', ".add-item-button", function(){
     $("#items").find("[name = quality_1]").attr("name", "quality_"+(numItems));
     $("#items").find("[name = isRented_1]").attr("name", "isRented_"+(numItems));
     $("#items").find("[name = description_1]").attr("name", "description_"+(numItems));
-    $('#numItems').attr("value", numItems);
+    $("[name = numItems]").attr("value", numItems);
 });
 </script>
 

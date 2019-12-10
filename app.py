@@ -142,20 +142,20 @@ def makePost():
         pType = request.form.get('payment-type')
         pickup = request.form.get('pickup-location')
         description = request.form.get('description')
-        dbInteractions.makePost(conn,session['CAS_USERNAME'],title,category,pRange,pType,pickup,description)
+        pid = dbInteractions.makePost(conn,session['CAS_USERNAME'],title,category,pRange,pType,pickup,description)
 
-        pid = dbInteractions.getLatestPid(conn)
-        numItemsTest = request.form.get('numItems')
+        #pid = dbInteractions.getLatestPid(conn)
+        numItemsTest = request.form['numItems']
         print("numItemsTest" + str(numItemsTest))
         numItems = 5
         for i in range(1, numItems):
             iName = request.form['item_' + str(i)]
             iPrice = request.form['price_' + str(i)]
-            iPhoto = request.form['photo_' + str(i)]
+            #iPhoto = request.form['photo_' + str(i)]
             iQuality = request.form['quality_' + str(i)]
             iIsRented = request.form['isRented_' + str(i)]
             iDescription = request.form['description_' + str(i)]
-            dbInteractions.addItem(conn, pid, iName, iPrice, iQuality, iIsRented, iDescription)
+            dbInteractions.addItem(conn, pid['max(pid)'], iName, iPrice, iQuality, iIsRented, iDescription)
 
         return redirect(url_for('feed'))
 
