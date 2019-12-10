@@ -6,8 +6,8 @@
 {% block content %}
 <h1>Make a Post</h1>
 <form id="make-post-form" method="post" action="{{url_for('makePost')}}">
-    <p><label for="title">Post Title<input required id="title" name="title"></label></p>
-    <p><label for="category">Category 
+    <p><label for="title">*Post Title<input required id="title" name="title"></label></p>
+    <p><label for="category">*Category 
         <select required id="category" name="category">
             <option value="">Choose Category</option>
             <option value="beauty">Beauty</option>
@@ -22,7 +22,7 @@
             <option value="other">Other</option>
         </select>
     </label></p>
-    <p><label for="price-range">Price Range 
+    <p><label for="price-range">*Price Range 
         <select required id="price-range" name="price-range">
             <option value="">Choose Price Range</option>
             <option value="free">Free</option>
@@ -32,7 +32,7 @@
         </select>
     </label></p>
     </label></p>
-    <p><label for="payment-type">Payment Type
+    <p><label for="payment-type">*Payment Type
         <select required id="payment-type" name="payment-type">
             <option value="">Choose Payment Type</option>
             <option value="n/a">N/A</option>
@@ -42,7 +42,7 @@
             <option value="other">Other</option>
         </select>
     </label></p>
-    <p><label for="pickup-location">Pickup Location
+    <p><label for="pickup-location">*Pickup Location
         <select required id="pickup-location" name="pickup-location">
             <option value="">Choose Pickup Location</option>
             <option value="bates">Bates</option>
@@ -71,9 +71,9 @@
     </label></p>
     <input type="hidden" name="numItems" value='1'>
     <div name='itemTemplate'>
-        <p><label for="item">Item Name<input required name="item_1"></label></p>
-        <p><label for="price">Price<input required name="price_1" type="number" min="0.00" max="10000.00" step="0.01"/></label></p>
-        <p><label for="quality">Quality
+        <p><label for="item">*Item Name<input required name="item_1"></label></p>
+        <p><label for="price">*Price<input required name="price_1" type="number" min="0.00" max="10000.00" step="0.01"/></label></p>
+        <p><label for="quality">*Quality
             <select required id="quality" name="quality_1">
                 <option value="">Choose Quality</option>
                 <option value="new">New</option>
@@ -84,7 +84,7 @@
                 <option value="poor">Poor</option>
             </select>
         </label></p>
-        <p><label for="isRented" name="isRented">For Rent
+        <p><label for="isRented" name="isRented">*For Rent
             <input required type="radio" name="isRented_1" value="1">Yes</input>
             <input type="radio" name="isRented_1" value="0">No</input>
         </label>
