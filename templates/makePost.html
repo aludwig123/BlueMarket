@@ -5,7 +5,7 @@
 
 {% block content %}
 <h1>Make a Post</h1>
-<form id="make-post-form" method="post" action="{{url_for('makePost')}}">
+<form id="make-post-form" method="post" action="{{url_for('makePost')}}" enctype="multipart/form-data">
     <p><label for="title">*Post Title<input required id="title" name="title"></label></p>
     <p><label for="category">*Category 
         <select required id="category" name="category">
@@ -68,6 +68,9 @@
     </label></p>
     <p><label for="description">Description
         <textarea id="description" name="description"></textarea>
+    </label></p>
+    <p><label for="picture">Upload Image
+        <input type="file" name="pic">
     </label></p>
     <h3>Items in Your Post:</h3>
     <input type="hidden" name="numItems" value='1'>

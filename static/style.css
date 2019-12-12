@@ -135,3 +135,12 @@
     float: left;
     margin-right: 5px;
 }
+
+#flashes {
+    color: red;
+}
+
+.unbookmarkButton {
+    float: right;
+    background-color: red;
+}

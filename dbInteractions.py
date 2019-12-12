@@ -21,6 +21,11 @@ def makePost(conn,user,title,category,pRange,pType,pickup,description):
     curs.execute('''select last_insert_id()''')
     return curs.fetchone()
 
+def uploadImage(conn, pid, filename):
+    curs = dbi.dictCursor(conn)
+    curs.execute('''update post set photo=%s where pid=%s''',
+                [filename, pid])
+
 def getFeed(conn):
     '''Get home feed by returning all posts in reverse chronological order'''
     curs = dbi.dictCursor(conn)
@@ -78,6 +83,42 @@ def interestedIn(conn, uid, iid):
     '''Given item id and user id, insert those values into interested table'''
     curs = dbi.dictCursor(conn)
     curs.execute('insert into interested values(%s, %s)', [uid, iid])
+    curs.execute('select uid from post where pid = (select pid from item where iid = %s)',[iid])
+    sellerId = curs.fetchone()
+    curs.execute('select name from item where iid = %s',[iid])
+    itemName = curs.fetchone()
+    return (sellerId['uid'], itemName['name'])
+
+def getSeller(conn, iid):
+    '''Return seller id given item id'''
+    curs = dbi.dictCursor(conn)
+    curs.execute('select uid from post where pid = (select pid from item where iid = %s)',[iid])
+    return curs.fetchone()['uid']
+
+def getSellerB(conn, pid):
+    '''Return seller id given post id'''
+    curs = dbi.dictCursor(conn)
+    curs.execute('select uid from post where pid = %s',[pid])
+    return curs.fetchone()['uid']
+
+def checkIsInterestedIn(conn, uid, iid):
+    '''Given item id and user id, check if user already marked item as interested in
+    Returns true if user is already interested in item'''
+    curs = dbi.dictCursor(conn)
+    curs.execute('select * from interested where uid = %s and iid = %s',[uid,iid])
+    return len(curs.fetchall()) != 0
+
+def checkIsBookmarked(conn, uid, pid):
+    '''Given post id and user id, check if user already bookmarked post
+    Returns true if post is already bookmarked'''
+    curs = dbi.dictCursor(conn)
+    curs.execute('select * from bookmark where uid = %s and pid = %s',[uid,pid])
+    return len(curs.fetchall()) != 0
+
+def unbookmarkPost(conn, uid, pid):
+    '''Given user id and post id, remove from bookmark table'''
+    curs = dbi.dictCursor(conn)
+    curs.execute('delete from bookmark where uid = %s and pid = %s', [uid, pid])
 
 def getInterestedIn(conn, uid):
     '''Returns items the given user is interested in'''
