@@ -169,12 +169,22 @@ def getInterestedIn():
     items = dbInteractions.getInterestedIn(conn, user)
     return render_template('interestedItems.html', items = items)
 
-@app.route('/deletePost/<pid>/', methods = ['GET', 'POST'])
+@app.route('/deletePost/delete-<pid>/', methods = ['GET', 'POST'])
 def deletePost(pid):
     '''Delete post given pid, will delete it's items too via cascade'''
     pid = int(pid)
     conn = dbInteractions.getConn()
     posts = dbInteractions.getMyPosts(conn, session['CAS_USERNAME'])
+    if pid in [post['pid'] for post in posts]:
+        dbInteractions.deletePost(conn, pid)
+    return redirect(url_for('myStuff'))
+
+@app.route('/editPost/edit-<pid>/', methods = ['GET', 'POST'])
+def editPost(pid):
+    '''Edit post given pid'''
+    pid = int(pid)
+    conn = dbInteractions.getConn()
+    postInfo = dbInteractions.getPostInfo(conn, session['CAS_USERNAME'])
     if pid in [post['pid'] for post in posts]:
         dbInteractions.deletePost(conn, pid)
     return redirect(url_for('myStuff'))

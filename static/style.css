@@ -28,6 +28,7 @@
 #bluemark-title {
     color: white;
     text-align: center;
+    font-family: Didot, serif;
 }
 
 #navigation a {
@@ -136,6 +137,7 @@
     margin-right: 5px;
 }
 
+<<<<<<< HEAD
 #flashes {
     color: red;
 }
@@ -143,4 +145,9 @@
 .unbookmarkButton {
     float: right;
     background-color: red;
+=======
+html *
+{
+   font-family: DejaVu Sans Mono, monospace;
+>>>>>>> izzy
 }
