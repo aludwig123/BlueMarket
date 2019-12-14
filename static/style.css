@@ -137,6 +137,15 @@
     margin-right: 5px;
 }
 
+#flashes {
+    color: red;
+}
+
+.unbookmarkButton {
+    float: right;
+    background-color: red;
+}
+
 html *
 {
    font-family: DejaVu Sans Mono, monospace;
