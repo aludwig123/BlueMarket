@@ -28,6 +28,7 @@
 #bluemark-title {
     color: white;
     text-align: center;
+    font-family: Didot, serif;
 }
 
 #navigation a {
@@ -134,4 +135,9 @@
 .post-item {
     float: left;
     margin-right: 5px;
+}
+
+html *
+{
+   font-family: DejaVu Sans Mono, monospace;
 }
