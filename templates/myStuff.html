@@ -45,11 +45,11 @@
 <script>
     $("body").on('click', ".deleteButton", function(){
         if(confirm("Are you sure you want to delete this post?")){
-            location.href = '/deletePost/delete-' + this.id;  
+            location.href = '/deletePost/' + this.id;  
         }
     });
     $("body").on('click', ".editButton", function(){
-        location.href = '/editPost/edit-' + this.id;  
+        location.href = '/editPost/' + this.id;  
     });
 </script>
 {% endblock %}

@@ -21,10 +21,31 @@ def makePost(conn,user,title,category,pRange,pType,pickup,description):
     curs.execute('''select last_insert_id()''')
     return curs.fetchone()
 
+def updatePost(conn,pid,user,title,category,pRange,pType,pickup,description):
+    '''Updates a post (no items) given the pid.'''
+    curs = dbi.dictCursor(conn)
+    curs.execute('''update post set name=%s, category=%s, priceRange=%s, paymentType=%s, pickUpLocation=%s,
+    description=%s, dateCreated=current_timestamp where pid=%s''', [title,category,pRange,pType,pickup,description,pid])
+
+def updateItem(conn, iid, pid, name, price, quality, isRented, description):
+    '''Updates an item given the iid. If the item is new (iid=-1), insert into database.'''
+    curs = dbi.dictCursor(conn)
+    if iid < 0:
+        curs.execute('''insert into item (pid, name, price, quality, isRented, description) values (%s, %s, %s, %s, %s, %s)''',
+        [pid, name, price, quality, isRented, description])
+    else:
+        curs.execute('''update item set name=%s, price=%s, quality=%s, isRented=%s, description=%s where iid=%s''', 
+        [name, price, quality, isRented, description, iid])
+
 def uploadImage(conn, pid, filename):
     curs = dbi.dictCursor(conn)
-    curs.execute('''update post set photo=%s where pid=%s''',
+    curs.execute('''update post set photo=load_file(%s) where pid=%s''',
                 [filename, pid])
+
+def getImageFilename(conn, pid):
+    curs = dbi.dictCursor(conn)
+    curs.execute('''select photo from post where pid=%s''', [pid])
+    return curs.fetchone()
 
 def getFeed(conn):
     '''Get home feed by returning all posts in reverse chronological order'''
@@ -42,7 +63,7 @@ def getPost(conn, pid):
     '''Get post info given post id'''
     curs = dbi.dictCursor(conn)
     curs.execute('select * from post where pid = %s', [pid])
-    return curs.fetchall()
+    return curs.fetchone()
 
 def login(conn, user):
     '''Handle user log in. If new user, insert into user table.'''
@@ -67,6 +88,10 @@ def deletePost(conn, pid):
     '''Delete post given its post id'''
     curs = dbi.dictCursor(conn)
     curs.execute('delete from post where pid = %s', [pid])
+
+def deleteItem(conn, iid):
+    curs = dbi.dictCursor(conn)
+    curs.execute('delete from item where iid = %s', [iid])
     
 def bookmarkPost(conn, uid, pid):
     '''Given post id and user id, insert into bookmark table'''
@@ -138,3 +163,4 @@ def getPostItems(conn, pid):
     curs.execute('''select * from item where pid = %s''', [pid])
     return curs.fetchall()
 
+    

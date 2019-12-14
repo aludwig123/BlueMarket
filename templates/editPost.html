@@ -1,0 +1,172 @@
+<!--BlueMarket, Authors: Isabel Bryant, Analiese Ludwig, Hannah Yi-->
+<!--editPost-->
+
+{% extends "feed.html" %}
+
+{% block content %}
+<h1>Edit Your Post</h1>
+<form id="edit-post-form" method="post" action="{{url_for('editPost', pid=info['pid'])}}" enctype="multipart/form-data">
+    <p><label for="title">*Post Title<input required id="title" name="title" value="{{info['name']}}"></label></p>
+    <p><label for="category">*Category 
+        <select required id="category" name="category">
+            <option value="">Choose Category</option>
+            <option value="{{info['category']}}" selected="selected">{{info['category']}}</option>
+            <option value="beauty">Beauty</option>
+            <option value="clothing">Clothing</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="food">Food</option>
+            <option value="home">Home</option>
+            <option value="looking-for">Looking For</option>
+            <option value="school-supplies">School Supplies</option>
+            <option value="services">Services</option>
+            <option value="textbooks">Textbooks</option>
+            <option value="other">Other</option>
+        </select>
+    </label></p>
+    <p><label for="price-range">*Price Range 
+        <select required id="price-range" name="price-range">
+            <option value="">Choose Price Range</option>
+            <option value="{{info['priceRange']}}" selected="selected">{{info['priceRange']}}</option>
+            <option value="free">Free</option>
+            <option value="low">$</option>
+            <option value="medium">$$</option>
+            <option value="high">$$$</option>
+        </select>
+    </label></p>
+    </label></p>
+    <p><label for="payment-type">*Payment Type
+        <select required id="payment-type" name="payment-type">
+            <option value="">Choose Payment Type</option>
+            <option value="{{info['paymentType']}}" selected="selected">{{info['paymentType']}}</option>
+            <option value="n/a">N/A</option>
+            <option value="cash">Cash</option>
+            <option value="venmo">Venmo</option>
+            <option value="cashVenmo">Cash or Venmo</option>
+            <option value="other">Other</option>
+        </select>
+    </label></p>
+    <p><label for="pickup-location">*Pickup Location
+        <select required id="pickup-location" name="pickup-location">
+            <option value="">Choose Pickup Location</option>
+            <option value="{{info['pickUpLocation']}}" selected="selected">{{info['pickUpLocation']}}</option>
+            <option value="bates">Bates</option>
+            <option value="beebe">Beebe</option>
+            <option value="cazenove">Cazenove</option>
+            <option value="cedar-lodge">Cedar Lodge</option>
+            <option value="cervantes">Cervantes</option>
+            <option value="claflin">Claflin</option>
+            <option value="dower">Dower</option>
+            <option value="freeman">Freeman</option>
+            <option value="french-house">French House</option>
+            <option value="instead">Instead</option>
+            <option value="lake-house">Lake House</option>
+            <option value="mcafee">McAfee</option>
+            <option value="munger">Munger</option>
+            <option value="pomeroy">Pomeroy</option>
+            <option value="severance">Severance</option>
+            <option value="shafer">Shafer</option>
+            <option value="stone-davis">Stone-Davis</option>
+            <option value="tower-court">Tower Court</option>
+            <option value="other">Other</option>
+        </select>
+    </label></p>
+    <p><label for="description">Description
+        <textarea id="description" name="description">{{info['description']}}</textarea>
+    </label></p>
+    <p><label for="picture">Upload Image
+        <input type="file" name="pic" value="{{info['photo']}}">
+    </label></p>
+    <h3>Items in Your Post:</h3>
+    <input type="hidden" name="numItems" value='{{items|length}}'>
+    <div hidden name='itemTemplate'>
+        <input type="hidden" name="iid_" value='-1'>
+        <p><label for="item">*Item Name<input name="item_"></label></p>
+        <p><label for="price">*Price<input name="price_" type="number" min="0.00" max="10000.00" step="0.01"/></label></p>
+        <p><label for="quality">*Quality
+            <select id="quality" name="quality_">
+                <option value="">Choose Quality</option>
+                <option value="new">New</option>
+                <option value="like-new">Like New</option>
+                <option value="gently-used">Gently Used</option>
+                <option value="used">Used</option>
+                <option value="heavily-used">Heavily Used</option>
+                <option value="poor">Poor</option>
+            </select>
+        </label></p>
+        <p><label for="isRented" name="isRented">*For Rent?
+                <select id="isRented" name="isRented_">
+                    <option value="">Select Option</option>
+                    <option value="2">N/A</option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+        </label></p>
+        <p><label for="description">Description
+            <textarea id="description" name="description_"></textarea>
+        </label></p>
+    </div>
+    <div id='items'>
+        {% for item in items %}
+        <input type="hidden" name="iid_{{loop.index}}" value="{{item['iid']}}">
+        <p><label for="item">*Item Name<input required name="item_{{loop.index}}" value="{{item['name']}}"></label></p>
+        <p><label for="price">*Price<input required name="price_{{loop.index}}" type="number" min="0.00" max="10000.00" step="0.01" value="{{item['price']}}"/></label></p>
+        <p><label for="quality">*Quality
+            <select required id="quality" name="quality_{{loop.index}}">
+                <option value="">Choose Quality</option>
+                <option value="{{item['quality']}}" selected="selected">{{item['quality']}}</option>
+                <option value="">N/A</option>
+                <option value="new">New</option>
+                <option value="like-new">Like New</option>
+                <option value="gently-used">Gently Used</option>
+                <option value="used">Used</option>
+                <option value="heavily-used">Heavily Used</option>
+                <option value="poor">Poor</option>
+            </select>
+        </label></p>
+        <p><label for="isRented" name="isRented">*For Rent?
+                <select required id="isRented" name="isRented_{{loop.index}}">
+                    <option value="">Select Option</option>
+                    <option value="{{item['isRented']}}" selected="selected">
+                        {% if item['isRented'] == 0 %}
+                            No
+                        {% elif item['isRented'] == 1 %}
+                            Yes
+                        {% elif item['isRented'] == 2 %}
+                            N/A
+                        {% endif %}
+                    </option>
+                    <option value="2">N/A</option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+        </label></p>
+        <p><label for="description">Description
+            <textarea id="description" name="description_{{loop.index}}">{{item['description']}}</textarea>
+        </label></p>
+        {% endfor %}
+    </div>
+    <p><input class='add-item-button' type="button" value="Add Item"></p>
+    <p><input type="submit" value="Edit Post"></p>
+</form>
+
+<script>
+    var numItems = $("#edit-post-form").find('[name = numItems]').val();
+    $("#edit-post-form").on('click', ".add-item-button", function(){
+        $("#items").append($('[name = itemTemplate]').clone());
+        $("#items").find('[name = itemTemplate]').show();
+        numItems++;
+        $("#items").find("[name = itemTemplate]").attr("name", "item_"+(numItems));
+        $("#items").find("[name = iid_]").attr("name", "iid_"+(numItems));
+        $("#items").find("[name = item_]").attr("name", "item_"+(numItems));
+        $("#items").find("[name = item_" + numItems + "]").prop('required',true);
+        $("#items").find("[name = price_]").attr("name", "price_"+(numItems));
+        $("#items").find("[name = price_" + numItems + "]").prop('required',true);
+        $("#items").find("[name = quality_]").attr("name", "quality_"+(numItems));
+        $("#items").find("[name = quality_" + numItems + "]").prop('required',true);
+        $("#items").find("[name = isRented_]").attr("name", "isRented_"+(numItems));
+        $("#items").find("[name = isRented_" + numItems + "]").prop('required',true);
+        $("#items").find("[name = description_]").attr("name", "description_"+(numItems));
+        $("[name = numItems]").attr("value", numItems);
+    });
+</script>
+{% endblock %}

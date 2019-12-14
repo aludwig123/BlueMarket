@@ -80,6 +80,7 @@
         <p><label for="quality">*Quality
             <select required id="quality" name="quality_1">
                 <option value="">Choose Quality</option>
+                <option value="">N/A</option>
                 <option value="new">New</option>
                 <option value="like-new">Like New</option>
                 <option value="gently-used">Gently Used</option>
@@ -88,11 +89,14 @@
                 <option value="poor">Poor</option>
             </select>
         </label></p>
-        <p><label for="isRented" name="isRented">*For Rent
-            <input required type="radio" name="isRented_1" value="1">Yes</input>
-            <input type="radio" name="isRented_1" value="0">No</input>
-        </label>
-        </p>
+        <p><label for="isRented" name="isRented">*For Rent?
+            <select required id="isRented" name="isRented_1">
+                <option value="">Select Option</option>
+                <option value="2">N/A</option>
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select>
+        </label></p>
         <p><label for="description">Description
             <textarea id="description" name="description_1"></textarea>
         </label></p>

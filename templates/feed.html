@@ -65,8 +65,7 @@
 
 {% for post in posts %}
 <div class="card" id="{{post.pid}}">
-    <img id="feedImage" src="{{url_for('static', filename= 'placeholder.png')}}" alt="item">
-    <!-- <img src="{{url_for('static', filename="{{post.image}}")}}" alt="item"> -->
+    <img id="feedImage" src="{{url_for('picture', pid=post.pid)}}" alt="item">
     <div class="container">
         <p><h4>{{post.name}} <br> Seller: {{post.uid}}</h4>
         Price Range: {% if post.priceRange == 'free' %}

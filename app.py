@@ -4,7 +4,7 @@
 # Fall 2019
 
 from flask import (Flask, render_template, request, url_for, redirect, flash, session,
-                    send_from_directory)
+                    send_from_directory, Response, make_response)
 from datetime import datetime
 import random
 import dbInteractions
@@ -83,7 +83,8 @@ def readPost(pid):
     conn = dbInteractions.getConn()
     post = dbInteractions.getPost(conn,pid)
     items = dbInteractions.getPostItems(conn, pid)
-    return render_template('post.html', posts = post, items=items)
+    isSeller = dbInteractions.getSellerB(conn, pid) == session['CAS_USERNAME']
+    return render_template('post.html', post=post, items=items, isSeller=isSeller)
 
 @app.route('/bookmark/<pid>/')
 def bookmarkPost(pid):
@@ -109,7 +110,7 @@ def searchItems():
     if request.method == 'GET':
         query = request.args.get('searchterm')
         PIDS = dbInteractions.getSearchPIDs(conn,query)
-        posts = [dbInteractions.getPost(conn, postID['pid'])[0] for postID in PIDS]
+        posts = [dbInteractions.getPost(conn, postID['pid']) for postID in PIDS]
         return render_template('feed.html', posts = posts)
 
 @app.route('/myStuff/')
@@ -184,10 +185,54 @@ def editPost(pid):
     '''Edit post given pid'''
     pid = int(pid)
     conn = dbInteractions.getConn()
-    postInfo = dbInteractions.getPostInfo(conn, session['CAS_USERNAME'])
-    if pid in [post['pid'] for post in posts]:
-        dbInteractions.deletePost(conn, pid)
-    return redirect(url_for('myStuff'))
+    if request.method == 'GET':
+        postInfo = dbInteractions.getPost(conn, pid)
+        items = dbInteractions.getPostItems(conn, pid)
+        if session['CAS_USERNAME'] == postInfo['uid']:
+            return render_template('editPost.html', info=postInfo, items=items)
+        else:
+            flash("You are a hacker get the heck out of town!")
+            return redirect(url_for('myStuff'))
+    elif request.method == 'POST':
+        title = request.form.get('title')
+        category = request.form.get('category')
+        pRange = request.form.get('price-range')
+        pType = request.form.get('payment-type')
+        pickup = request.form.get('pickup-location')
+        description = request.form.get('description')
+        dbInteractions.updatePost(conn,pid,session['CAS_USERNAME'],title,category,pRange,pType,pickup,description)
+        flash("Successfully updated post!")
+        # photo upload stuff
+        try:
+            f = request.files['pic']
+            fsize = os.fstat(f.stream.fileno()).st_size
+            if fsize > app.config['MAX_CONTENT_LENGTH']:
+                raise Exception('File is too big')
+            mime_type = imghdr.what(f)
+            if not mime_type or mime_type.lower() not in ['jpeg','gif','png', 'jpg']:
+                raise Exception('Not recognized as JPG, JPEG, GIF or PNG: {}'
+                                    .format(mime_type))
+            filename = secure_filename('{}.{}'.format(pid,mime_type))
+            pathname = os.path.join(app.config['UPLOADS'],filename)
+            f.save(pathname)
+            dbInteractions.uploadImage(conn, pid, filename)
+            
+        except Exception as err:
+            flash('Upload failed {why}'.format(why=err))
+        
+        # iterate through each item and add it to item table 
+        numItems = request.form['numItems']
+        for i in range(1, int(numItems)+1):
+            iid = request.form['iid_' + str(i)]
+            iName = request.form['item_' + str(i)]
+            iPrice = request.form['price_' + str(i)]
+            #iPhoto = request.form['photo_' + str(i)]
+            iQuality = request.form['quality_' + str(i)]
+            iIsRented = request.form['isRented_' + str(i)]
+            iDescription = request.form['description_' + str(i)]
+            dbInteractions.updateItem(conn, int(iid), pid, iName, float(iPrice), iQuality, int(iIsRented), iDescription)
+        return redirect(url_for('myStuff'))
+
 
 @app.route('/makePost/', methods = ['GET', 'POST'])
 def makePost():
@@ -207,17 +252,18 @@ def makePost():
         # photo upload stuff
         try:
             f = request.files['pic']
-            fsize = os.fstat(f.stream.fileno()).st_size
-            if fsize > app.config['MAX_CONTENT_LENGTH']:
-                raise Exception('File is too big')
-            mime_type = imghdr.what(f)
-            if not mime_type or mime_type.lower() not in ['jpeg','gif','png', 'jpg']:
-                raise Exception('Not recognized as JPG, JPEG, GIF or PNG: {}'
-                                    .format(mime_type))
-            filename = secure_filename('{}.{}'.format(pid,mime_type))
-            pathname = os.path.join(app.config['UPLOADS'],filename)
-            f.save(pathname)
-            dbInteractions.uploadImage(conn, pid, filename)
+            # fsize = os.fstat(f.stream.fileno()).st_size
+            image = f.read()
+            # if fsize > app.config['MAX_CONTENT_LENGTH']:
+            #     raise Exception('File is too big')
+            # mime_type = imghdr.what(f)
+            # if not mime_type or mime_type.lower() not in ['jpeg','gif','png', 'jpg']:
+            #     raise Exception('Not recognized as JPG, JPEG, GIF or PNG: {}'
+                                    # .format(mime_type))
+            # filename = secure_filename('{}.{}'.format(pid,mime_type))
+            # pathname = os.path.join(app.config['UPLOADS'],filename)
+            # f.save(pathname)
+            dbInteractions.uploadImage(conn, pid, image)
             
         except Exception as err:
             flash('Upload failed {why}'.format(why=err))
@@ -230,11 +276,31 @@ def makePost():
             iPrice = request.form['price_' + str(i)]
             #iPhoto = request.form['photo_' + str(i)]
             iQuality = request.form['quality_' + str(i)]
+            if iQuality == "":
+                iQuality = None
             iIsRented = request.form['isRented_' + str(i)]
             iDescription = request.form['description_' + str(i)]
             dbInteractions.addItem(conn, pid, iName, float(iPrice), iQuality, int(iIsRented), iDescription)
         flash("Your post has been created!")
         return redirect(url_for('feed'))
+
+@app.route('/picture/<pid>')
+def picture(pid):
+    conn = dbInteractions.getConn()
+    filename = dbInteractions.getImageFilename(conn, pid)
+    # return send_from_directory(app.config['UPLOADS'],filename['photo'])
+    return Response(image,mimetype='image/'+imghdr.what(None,image))
+
+@app.route('/deleteItem/<iid>')
+def deleteItem(iid):
+    conn = dbInteractions.getConn()
+    seller = dbInteractions.getSeller(conn, iid)
+    if session['CAS_USERNAME'] == seller:
+        dbInteractions.deleteItem(conn, iid)
+        flash("Successfully deleted item from post!")
+    else:
+        flash("You can't delete an item from a post you didn't create you stinky hacker you!")
+    return redirect(request.referrer)
 
 @app.route('/logout/', methods = ['GET', 'POST'])
 def logout():
