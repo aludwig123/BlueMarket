@@ -27,8 +27,16 @@
         <form action='{{url_for("readPost", pid = post.pid)}}'>
             <button type="submit" class="detailButton">Details</button>
         </form>
+        <button type="submit" id={{post.pid}} class="unbookmarkButton">Unbookmark</button>
     </div>
 </div>
 {% endfor %}
+<script>
+    $(".card").on('click', ".unbookmarkButton", function(){
+        if(confirm("Are you sure you want to unbookmark this post?")){
+            location.href = '/unbookmark/' + this.id;  
+        }
+    });
+</script>
 {% endblock %}
 </body>

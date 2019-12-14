@@ -3,13 +3,28 @@
 # Wellesley College CS304
 # Fall 2019
 
-from flask import (Flask, render_template, request, url_for, redirect, flash, session)
+from flask import (Flask, render_template, request, url_for, redirect, flash, session,
+                    send_from_directory)
 from datetime import datetime
 import random
 import dbInteractions
+import imghdr
+from werkzeug import secure_filename
 from flask_cas import CAS
+from flask_mail import Mail, Message
 
 app = Flask(__name__)
+
+# SEND EMAIL
+app.config.update(
+    DEBUG=True,
+    # EMAIL SETTINGS
+    MAIL_SERVER='localhost',    # default; works on Tempest
+    MAIL_PORT=25,               # default
+    MAIL_USE_SSL=False,         # default
+    MAIL_USERNAME='bluemark@wellesley.edu'
+)
+mail = Mail(app)
 
 #generate random secret key
 app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
@@ -17,15 +32,18 @@ app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
                                           '0123456789'))
                            for i in range(20) ])
 
+# CAS LOGIN
 CAS(app)
-
 app.config['CAS_SERVER'] = 'https://login.wellesley.edu:443'
 app.config['CAS_LOGIN_ROUTE'] = '/module.php/casserver/cas.php/login'
 app.config['CAS_LOGOUT_ROUTE'] = '/module.php/casserver/cas.php/logout'
 app.config['CAS_VALIDATE_ROUTE'] = '/module.php/casserver/serviceValidate.php'
 app.config['CAS_AFTER_LOGIN'] = 'logged_in'
-# the following doesn't work :-(
 app.config['CAS_AFTER_LOGOUT'] = 'after_logout'
+
+# FILE UPLOAD
+app.config['UPLOADS'] = 'uploads'
+app.config['MAX_CONTENT_LENGTH'] = 1*1024*1024 # 1 MB
 
 @app.route('/')
 def index():
@@ -72,7 +90,16 @@ def bookmarkPost(pid):
     '''Bookmark post given post id, using current user id'''
     conn = dbInteractions.getConn()
     user = session['CAS_USERNAME']
-    dbInteractions.bookmarkPost(conn, user, pid)
+    seller = dbInteractions.getSellerB(conn, pid)
+    if user == seller:
+        flash("You cannot bookmark your own post!")
+    else:
+        isBookmarked = dbInteractions.checkIsBookmarked(conn, user, pid)
+        if not isBookmarked:
+            dbInteractions.bookmarkPost(conn, user, pid)
+            flash("You have bookmarked this post!")
+        else:
+            flash("You have already bookmarked this post!")
     return redirect(request.referrer)
 
 @app.route('/search/', methods = ['GET', 'POST'])
@@ -100,12 +127,38 @@ def getBookmarked():
     posts = dbInteractions.getBookmarked(conn, user)
     return render_template('bookmarkedPost.html', posts = posts)
 
+@app.route('/unbookmark/<pid>')
+def unbookmarkPost(pid):
+    '''Unbookmark post for current user given pid'''
+    conn = dbInteractions.getConn()
+    user = session['CAS_USERNAME']
+    posts = dbInteractions.unbookmarkPost(conn, user, pid)
+    flash("Post has been removed from your bookmarks!")
+    return redirect(request.referrer)
+
 @app.route('/interested/<iid>/')
 def interestedItem(iid):
     '''User marks that they are interested in an item'''
     conn = dbInteractions.getConn()
     user = session['CAS_USERNAME']
-    dbInteractions.interestedIn(conn, user, iid)
+    seller = dbInteractions.getSeller(conn, iid)
+    if user == seller:
+        flash("You cannot mark yourself interested in your own item!")
+    else:
+        checkInterested = dbInteractions.checkIsInterestedIn(conn, user, iid)
+        if not checkInterested:
+            sellerId,itemName = dbInteractions.interestedIn(conn, user, iid)
+            msg = Message(subject="Blue Market: Someone is interested in your item!",
+                            sender=user+"@wellesley.edu",
+                            recipients=[sellerId+"@wellesley.edu"],
+                            body='''Dear '''+ sellerId+ ''', \n\n
+                                        Someone is interested in purchasing your item for sale: '''+ itemName+'''\n 
+                                        To contact the buyer, please respond to this email or contact them at '''+user+'''@wellesley.edu \n\n
+                                        Thanks for using Blue Market! ''')
+            mail.send(msg)
+            flash("Seller notified!")
+        else: 
+            flash("You have already marked yourself as interested in this item!")
     return redirect(request.referrer)
 
 @app.route('/myStuff/interested/')
@@ -150,6 +203,25 @@ def makePost():
         pickup = request.form.get('pickup-location')
         description = request.form.get('description')
         pid = dbInteractions.makePost(conn,session['CAS_USERNAME'],title,category,pRange,pType,pickup,description)
+        pid = pid['last_insert_id()']
+        # photo upload stuff
+        try:
+            f = request.files['pic']
+            fsize = os.fstat(f.stream.fileno()).st_size
+            if fsize > app.config['MAX_CONTENT_LENGTH']:
+                raise Exception('File is too big')
+            mime_type = imghdr.what(f)
+            if not mime_type or mime_type.lower() not in ['jpeg','gif','png', 'jpg']:
+                raise Exception('Not recognized as JPG, JPEG, GIF or PNG: {}'
+                                    .format(mime_type))
+            filename = secure_filename('{}.{}'.format(pid,mime_type))
+            pathname = os.path.join(app.config['UPLOADS'],filename)
+            f.save(pathname)
+            dbInteractions.uploadImage(conn, pid, filename)
+            
+        except Exception as err:
+            flash('Upload failed {why}'.format(why=err))
+            #return render_template('form.html')
 
         # iterate through each item and add it to item table 
         numItems = request.form['numItems']
@@ -160,10 +232,9 @@ def makePost():
             iQuality = request.form['quality_' + str(i)]
             iIsRented = request.form['isRented_' + str(i)]
             iDescription = request.form['description_' + str(i)]
-            dbInteractions.addItem(conn, pid['last_insert_id()'], iName, float(iPrice), iQuality, int(iIsRented), iDescription)
-        
+            dbInteractions.addItem(conn, pid, iName, float(iPrice), iQuality, int(iIsRented), iDescription)
+        flash("Your post has been created!")
         return redirect(url_for('feed'))
-
 
 @app.route('/logout/', methods = ['GET', 'POST'])
 def logout():

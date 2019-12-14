@@ -47,10 +47,14 @@
             {% endif %}
         </p>
         <p><b>Description: </b>{{item.description}}</p>
-
-        <form action='{{url_for("interestedItem", iid= item.iid)}}'>
-            <button type="submit" class="Interested">Interested In</button>
-        </form>
+        <button type="submit" id={{item.iid}} class="Interested">Interested In</button>
     <br></div>
 {% endfor %}
+<script>
+    $(".post-item").on('click', ".Interested", function(){
+        if(confirm("Clicking this sends an email to the seller. Are you sure you want to continue?")){
+            location.href = '/interested/' + this.id;  
+        }
+    });
+</script>
 {% endblock %}

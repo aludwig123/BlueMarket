@@ -34,6 +34,7 @@ CREATE TABLE post (
                     'Pomeroy', 'Severance', 'Shafer', 'Stone-Davis','Tower-Court', 
                     'Cedar-Lodge', 'French-House', 'Other', 'Instead' ),
     description varchar(200),
+    photo blob,
     primary key (pid)
 )
 ENGINE = InnoDB;
