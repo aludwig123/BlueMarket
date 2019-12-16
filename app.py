@@ -43,7 +43,7 @@ app.config['CAS_AFTER_LOGOUT'] = 'after_logout'
 
 # FILE UPLOAD
 app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['MAX_CONTENT_LENGTH'] = 1*1024*1024 # 1 MB
+app.config['MAX_CONTENT_LENGTH'] = 10*1024*1024 # 1 MB
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 @app.route('/')
