@@ -14,8 +14,6 @@ SET FOREIGN_KEY_CHECKS = 1;
 CREATE TABLE user (
     uid varchar(30),
     name varchar(50),
-    gradYear varchar(4),
-    avatar blob,
     primary key (uid)
 )
 ENGINE = InnoDB;
@@ -34,7 +32,7 @@ CREATE TABLE post (
                     'Pomeroy', 'Severance', 'Shafer', 'Stone-Davis','Tower-Court', 
                     'Cedar-Lodge', 'French-House', 'Other', 'Instead' ),
     description varchar(200),
-    photo blob,
+    photo varchar(60),
     primary key (pid)
 )
 ENGINE = InnoDB;
@@ -44,7 +42,7 @@ CREATE TABLE item (
     pid int,
     name varchar(30),
     price float(9,2),
-    photo blob,
+    photo varchar(60),
     quality enum('new', 'like-new', 'gently-used', 'used', 'heavily-used', 'poor'),
     isRented boolean,
     description varchar(100),

@@ -6,7 +6,7 @@
 {% block content %}
 <h1>{{post.name}}</h1>
 <div class="postContainer">
-    <img id="postImage" src="{{url_for('static', filename='placeholder.png')}}" alt="item">
+    <img id="postImage" src="{{url_for('uploaded_file', filename=post.photo)}}" alt="PostPhoto">
 </div>
 <p><b>Price Range:  </b> {% if post.priceRange == 'free' %}
         Free
@@ -33,7 +33,7 @@
     <div class='post-item'>
         <h3>{{item.name}}</h3>
         <div class="itemContainer">
-            <img class="itemImage" src="{{url_for('static', filename= 'placeholder.png')}}" alt="item">
+            <img class="itemImage" src="{{url_for('uploaded_file', filename=item.photo)}}" alt='ItemPhoto'>
         </div>
         <p><b>Price: </b>{{ "${:,.2f}".format(item.price) }} </p> 
         <p><b>Quality: </b>

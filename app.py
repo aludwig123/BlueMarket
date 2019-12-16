@@ -42,8 +42,9 @@ app.config['CAS_AFTER_LOGIN'] = 'logged_in'
 app.config['CAS_AFTER_LOGOUT'] = 'after_logout'
 
 # FILE UPLOAD
-app.config['UPLOADS'] = 'uploads'
+app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 1*1024*1024 # 1 MB
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 @app.route('/')
 def index():
@@ -177,6 +178,10 @@ def deletePost(pid):
     conn = dbInteractions.getConn()
     posts = dbInteractions.getMyPosts(conn, session['CAS_USERNAME'])
     if pid in [post['pid'] for post in posts]:
+        filename = dbInteractions.getImageFilename(conn, pid)['photo']
+        if filename != 'placeholder.png':
+            dbInteractions.deletePost(conn, pid)
+            return redirect(url_for('delete_file', filename=filename))
         dbInteractions.deletePost(conn, pid)
     return redirect(url_for('myStuff'))
 
@@ -191,7 +196,7 @@ def editPost(pid):
         if session['CAS_USERNAME'] == postInfo['uid']:
             return render_template('editPost.html', info=postInfo, items=items)
         else:
-            flash("You are a hacker get the heck out of town!")
+            flash("You might be a hacker, please do not edit post by modifying url!")
             return redirect(url_for('myStuff'))
     elif request.method == 'POST':
         title = request.form.get('title')
@@ -200,39 +205,87 @@ def editPost(pid):
         pType = request.form.get('payment-type')
         pickup = request.form.get('pickup-location')
         description = request.form.get('description')
-        dbInteractions.updatePost(conn,pid,session['CAS_USERNAME'],title,category,pRange,pType,pickup,description)
-        flash("Successfully updated post!")
-        # photo upload stuff
-        try:
-            f = request.files['pic']
-            fsize = os.fstat(f.stream.fileno()).st_size
-            if fsize > app.config['MAX_CONTENT_LENGTH']:
-                raise Exception('File is too big')
-            mime_type = imghdr.what(f)
-            if not mime_type or mime_type.lower() not in ['jpeg','gif','png', 'jpg']:
-                raise Exception('Not recognized as JPG, JPEG, GIF or PNG: {}'
-                                    .format(mime_type))
-            filename = secure_filename('{}.{}'.format(pid,mime_type))
-            pathname = os.path.join(app.config['UPLOADS'],filename)
-            f.save(pathname)
-            dbInteractions.uploadImage(conn, pid, filename)
-            
-        except Exception as err:
-            flash('Upload failed {why}'.format(why=err))
         
-        # iterate through each item and add it to item table 
+        # photo upload stuff
+        # start by removing old photo from uploads folder:
+        oldFilename = dbInteractions.getImageFilename(conn, pid)['photo']
+        if oldFilename != 'placeholder.png':
+            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], oldFilename))
+        file = request.files['file']
+        filename = file.filename
+        if filename == '':
+            filename = 'placeholder.png'
+        else:
+            if file and allowed_file(filename):
+                filename = secure_filename(filename) 
+                # adding random string to filename in case that two posts upload images
+                # with the same name
+                filename = filename.split('.')[0] + ''.join([
+                    random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
+                                    'abcdefghijklmnopqrstuvxyz' +
+                                    '0123456789'))
+                            for i in range(20) ]) + '.' + filename.split('.')[1]
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            else:
+                flash('Please only upload files of the following type: JPG, JPEG, GIF or PNG')
+                return redirect(request.url)
+        
+        # iterate through each item and update it in the item table 
         numItems = request.form['numItems']
         for i in range(1, int(numItems)+1):
             iid = request.form['iid_' + str(i)]
             iName = request.form['item_' + str(i)]
             iPrice = request.form['price_' + str(i)]
-            #iPhoto = request.form['photo_' + str(i)]
             iQuality = request.form['quality_' + str(i)]
+            if iQuality == "":
+                iQuality = None
             iIsRented = request.form['isRented_' + str(i)]
             iDescription = request.form['description_' + str(i)]
-            dbInteractions.updateItem(conn, int(iid), pid, iName, float(iPrice), iQuality, int(iIsRented), iDescription)
+
+            # photo stuff
+            # start by removing old item photo from uploads folder:
+            oldItemFilename = dbInteractions.getItemImageFilename(conn, iid)['photo']
+            if oldItemFilename != 'placeholder.png':
+                os.remove(os.path.join(app.config['UPLOAD_FOLDER'],
+                        oldItemFilename))
+
+            iPhoto = request.files['itemFile_' + str(i)]
+            iPhotoFilename = iPhoto.filename
+            if iPhotoFilename == '':
+                iPhotoFilename = 'placeholder.png'
+            else:
+                if iPhoto and allowed_file(iPhotoFilename):
+                    iPhotoFilename = secure_filename(iPhotoFilename)
+                    iPhotoFilename = iPhotoFilename.split('.')[0] + ''.join([
+                    random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
+                                    'abcdefghijklmnopqrstuvxyz' +
+                                    '0123456789'))
+                            for i in range(20) ]) + '.' + iPhotoFilename.split('.')[1]
+                    iPhoto.save(os.path.join(app.config['UPLOAD_FOLDER'], iPhotoFilename))
+                else:
+                    flash('Please only upload files of the following type: JPG, JPEG, GIF or PNG')
+                    return redirect(url_for('myStuff'))
+            dbInteractions.updateItem(conn, int(iid), pid, iName, float(iPrice), iQuality,
+                                        int(iIsRented), iDescription, iPhotoFilename)
+
+        dbInteractions.updatePost(conn,pid,session['CAS_USERNAME'],title,category,pRange,
+                                        pType,pickup,description,filename)
+        flash("Successfully updated post!")
         return redirect(url_for('myStuff'))
 
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/deleteFile/<filename>')
+def delete_file(filename):
+    if filename != 'placeholder.png':
+        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    return redirect(url_for('myStuff'))
+
+def allowed_file(filename):
+    '''Checks if a file has an extension that is valid and secure'''
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/makePost/', methods = ['GET', 'POST'])
 def makePost():
@@ -240,56 +293,71 @@ def makePost():
     conn = dbInteractions.getConn()
     if request.method == 'GET':
         return render_template('makePost.html')
-    else: 
+    elif request.method == 'POST': 
         title = request.form.get('title')
         category = request.form.get('category')
         pRange = request.form.get('price-range')
         pType = request.form.get('payment-type')
         pickup = request.form.get('pickup-location')
         description = request.form.get('description')
-        pid = dbInteractions.makePost(conn,session['CAS_USERNAME'],title,category,pRange,pType,pickup,description)
+
+        # photo upload
+        file = request.files['file']
+        filename = file.filename
+        if filename == '':
+            filename = 'placeholder.png'
+        else:
+            if file and allowed_file(filename):
+                filename = secure_filename(filename) 
+                # adding random string to filename in case that two posts upload images
+                # with the same name
+                filename = filename.split('.')[0] + ''.join([
+                    random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
+                                    'abcdefghijklmnopqrstuvxyz' +
+                                    '0123456789'))
+                            for i in range(20) ]) + '.' + filename.split('.')[1]
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            else:
+                flash('Please only upload files of the following type: JPG, JPEG, GIF or PNG')
+                return redirect(request.url)
+
+        pid = dbInteractions.makePost(conn,session['CAS_USERNAME'],title,category,pRange,
+                                        pType,pickup,description,filename)
         pid = pid['last_insert_id()']
-        # photo upload stuff
-        try:
-            f = request.files['pic']
-            # fsize = os.fstat(f.stream.fileno()).st_size
-            image = f.read()
-            # if fsize > app.config['MAX_CONTENT_LENGTH']:
-            #     raise Exception('File is too big')
-            # mime_type = imghdr.what(f)
-            # if not mime_type or mime_type.lower() not in ['jpeg','gif','png', 'jpg']:
-            #     raise Exception('Not recognized as JPG, JPEG, GIF or PNG: {}'
-                                    # .format(mime_type))
-            # filename = secure_filename('{}.{}'.format(pid,mime_type))
-            # pathname = os.path.join(app.config['UPLOADS'],filename)
-            # f.save(pathname)
-            dbInteractions.uploadImage(conn, pid, image)
-            
-        except Exception as err:
-            flash('Upload failed {why}'.format(why=err))
-            #return render_template('form.html')
 
         # iterate through each item and add it to item table 
         numItems = request.form['numItems']
         for i in range(1, int(numItems)+1):
             iName = request.form['item_' + str(i)]
             iPrice = request.form['price_' + str(i)]
-            #iPhoto = request.form['photo_' + str(i)]
             iQuality = request.form['quality_' + str(i)]
             if iQuality == "":
                 iQuality = None
             iIsRented = request.form['isRented_' + str(i)]
             iDescription = request.form['description_' + str(i)]
-            dbInteractions.addItem(conn, pid, iName, float(iPrice), iQuality, int(iIsRented), iDescription)
+             
+            iPhoto = request.files['itemFile_' + str(i)]
+            iPhotoFilename = iPhoto.filename
+            if iPhotoFilename == '':
+                iPhotoFilename = 'placeholder.png'
+            else:
+                if iPhoto and allowed_file(iPhotoFilename):
+                    iPhotoFilename = secure_filename(iPhotoFilename)
+                    iPhotoFilename = iPhotoFilename.split('.')[0] + ''.join([
+                    random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
+                                    'abcdefghijklmnopqrstuvxyz' +
+                                    '0123456789'))
+                            for i in range(20) ]) + '.' + iPhotoFilename.split('.')[1]
+                    iPhoto.save(os.path.join(app.config['UPLOAD_FOLDER'], iPhotoFilename))
+                else:
+                    flash('Please only upload files of the following type: JPG, JPEG, GIF or PNG')
+                    dbInteractions.deletePost(conn, pid)
+                    return redirect(request.url)
+            
+            dbInteractions.addItem(conn, pid, iName, float(iPrice), iQuality, int(iIsRented),
+                                    iDescription, iPhotoFilename)
         flash("Your post has been created!")
         return redirect(url_for('feed'))
-
-@app.route('/picture/<pid>')
-def picture(pid):
-    conn = dbInteractions.getConn()
-    filename = dbInteractions.getImageFilename(conn, pid)
-    # return send_from_directory(app.config['UPLOADS'],filename['photo'])
-    return Response(image,mimetype='image/'+imghdr.what(None,image))
 
 @app.route('/deleteItem/<iid>')
 def deleteItem(iid):

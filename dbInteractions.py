@@ -12,39 +12,41 @@ def getConn():
     conn.select_db('bluemark_db')
     return conn
 
-def makePost(conn,user,title,category,pRange,pType,pickup,description):
+def makePost(conn,user,title,category,pRange,pType,pickup,description,photo):
     '''Make a new post (no items), return the most recent inserted pid by current thread.'''
     curs = dbi.dictCursor(conn)
-    curs.execute('''insert into post(uid,name,category,priceRange,paymentType,pickUpLocation,description)
-                    values (%s,%s,%s,%s,%s,%s,%s)''',
-                [user,title,category,pRange,pType,pickup,description])
+    curs.execute('''insert into post(uid,name,category,priceRange,paymentType,pickUpLocation,description,photo)
+                    values (%s,%s,%s,%s,%s,%s,%s,%s)''',
+                [user,title,category,pRange,pType,pickup,description,photo])
     curs.execute('''select last_insert_id()''')
     return curs.fetchone()
 
-def updatePost(conn,pid,user,title,category,pRange,pType,pickup,description):
+def updatePost(conn,pid,user,title,category,pRange,pType,pickup,description,photo):
     '''Updates a post (no items) given the pid.'''
     curs = dbi.dictCursor(conn)
     curs.execute('''update post set name=%s, category=%s, priceRange=%s, paymentType=%s, pickUpLocation=%s,
-    description=%s, dateCreated=current_timestamp where pid=%s''', [title,category,pRange,pType,pickup,description,pid])
+    description=%s, photo=%s, dateCreated=current_timestamp where pid=%s''', [title,category,pRange,pType,pickup,description,photo,pid])
 
-def updateItem(conn, iid, pid, name, price, quality, isRented, description):
+def updateItem(conn, iid, pid, name, price, quality, isRented, description, photo):
     '''Updates an item given the iid. If the item is new (iid=-1), insert into database.'''
     curs = dbi.dictCursor(conn)
     if iid < 0:
-        curs.execute('''insert into item (pid, name, price, quality, isRented, description) values (%s, %s, %s, %s, %s, %s)''',
-        [pid, name, price, quality, isRented, description])
+        curs.execute('''insert into item (pid, name, price, quality, isRented, description, photo) values (%s, %s, %s, %s, %s, %s, %s)''',
+        [pid, name, price, quality, isRented, description, photo])
     else:
-        curs.execute('''update item set name=%s, price=%s, quality=%s, isRented=%s, description=%s where iid=%s''', 
-        [name, price, quality, isRented, description, iid])
-
-def uploadImage(conn, pid, filename):
-    curs = dbi.dictCursor(conn)
-    curs.execute('''update post set photo=load_file(%s) where pid=%s''',
-                [filename, pid])
+        curs.execute('''update item set name=%s, price=%s, quality=%s, isRented=%s, description=%s, photo=%s where iid=%s''', 
+        [name, price, quality, isRented, description, photo, iid])
 
 def getImageFilename(conn, pid):
+    '''Returns a post's photo's filename given the pid'''
     curs = dbi.dictCursor(conn)
     curs.execute('''select photo from post where pid=%s''', [pid])
+    return curs.fetchone()
+
+def getItemImageFilename(conn, iid):
+    '''Returns an item's photo's filename given the iid'''
+    curs = dbi.dictCursor(conn)
+    curs.execute('''select photo from item where iid=%s''', [iid])
     return curs.fetchone()
 
 def getFeed(conn):
@@ -151,11 +153,11 @@ def getInterestedIn(conn, uid):
     curs.execute('''select * from item where iid in (select iid from interested where uid = %s)''', [uid])
     return curs.fetchall()
 
-def addItem(conn, pid, name, price, quality, isRented, description):
+def addItem(conn, pid, name, price, quality, isRented, description, photo):
     '''Insert an item into the item table'''
     curs = dbi.dictCursor(conn)
-    curs.execute('''insert into item(pid, name, price, quality, isRented, description)
-                    values(%s,%s,%s,%s,%s,%s)''', [pid, name, price, quality, isRented, description])
+    curs.execute('''insert into item(pid, name, price, quality, isRented, description, photo)
+                    values(%s,%s,%s,%s,%s,%s,%s)''', [pid, name, price, quality, isRented, description, photo])
 
 def getPostItems(conn, pid):
     '''Get all items of a given post'''

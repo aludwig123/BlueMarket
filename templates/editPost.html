@@ -74,7 +74,7 @@
         <textarea id="description" name="description">{{info['description']}}</textarea>
     </label></p>
     <p><label for="picture">Upload Image
-        <input type="file" name="pic" value="{{info['photo']}}">
+        <input type="file" name="file" value="{{info['photo']}}">
     </label></p>
     <h3>Items in Your Post:</h3>
     <input type="hidden" name="numItems" value='{{items|length}}'>
@@ -103,6 +103,9 @@
         </label></p>
         <p><label for="description">Description
             <textarea id="description" name="description_"></textarea>
+        </label></p>
+        <p><label for="picture">Upload Image
+            <input type="file" name="itemFile_">
         </label></p>
     </div>
     <div id='items'>
@@ -143,6 +146,9 @@
         <p><label for="description">Description
             <textarea id="description" name="description_{{loop.index}}">{{item['description']}}</textarea>
         </label></p>
+        <p><label for="picture">Upload Image
+            <input type="file" name="itemFile_{{loop.index}}" value="{{item['photo']}}">
+        </label></p>
         {% endfor %}
     </div>
     <p><input class='add-item-button' type="button" value="Add Item"></p>
@@ -166,6 +172,7 @@
         $("#items").find("[name = isRented_]").attr("name", "isRented_"+(numItems));
         $("#items").find("[name = isRented_" + numItems + "]").prop('required',true);
         $("#items").find("[name = description_]").attr("name", "description_"+(numItems));
+        $("#items").find("[name = itemFile_]").attr("name", "itemFile_"+(numItems));
         $("[name = numItems]").attr("value", numItems);
     });
 </script>

@@ -73,17 +73,26 @@
 
 #feed-navigation a:active{
     color:whitesmoke;
-    background-color: rgba(112, 112, 129);
+    background-color: rgb(26, 26, 70);
 }
 
 .card {
     box-shadow: 0 4px 4px 0 rgba(0,0,0,0.2);
     transition: 0.3s;
     width:30%;
-    height:600px;
+    height:450px;
     padding-top: 10px;
     padding-left: 10px;
     float: left;
+}
+
+img:before {
+    /* content: ' ';
+    display: block;
+    width: 100%;
+    height: 100%; 
+    object-fit: contain; */
+    background-image: url('placeholder.png');
 }
   
 .detailButton {
@@ -98,19 +107,19 @@
 #feedImage {
     width: 100%; /* or any custom size */
     height: 75%; 
-    object-fit: cover;
+    object-fit: contain;
 }
 
 #postImage {
     width: 100%; /* or any custom size */
     height: 100%; 
-    object-fit: cover;
+    object-fit: contain;
 }
 
-#itemImage {
+.itemImage {
     width: 100%; 
     height: 100%; 
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .card:hover {
@@ -122,6 +131,13 @@
 }
 
 .postContainer {
+    width: 500px;
+    height: 500px;
+    padding: 2px 16px;
+    float: left;
+}
+
+.itemContainer {
     width: 500px;
     height: 500px;
     padding: 2px 16px;
