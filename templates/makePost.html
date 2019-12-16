@@ -74,11 +74,41 @@
     </label></p>
     <h3>Items in Your Post:</h3>
     <input type="hidden" name="numItems" value='1'>
-    <div name='itemTemplate'>
+    <div hidden name='itemTemplate'>
+        <p><label for="item">*Item Name<input name="item_"></label></p>
+        <p><label for="price">*Price<input name="price_" type="number" min="0.00" max="10000.00" step="0.01"/></label></p>
+        <p><label for="quality">*Quality
+            <select id="quality" name="quality_">
+                <option value="">Choose Quality</option>
+                <option value="">N/A</option>
+                <option value="new">New</option>
+                <option value="like-new">Like New</option>
+                <option value="gently-used">Gently Used</option>
+                <option value="used">Used</option>
+                <option value="heavily-used">Heavily Used</option>
+                <option value="poor">Poor</option>
+            </select>
+        </label></p>
+        <p><label for="isRented" name="isRented">*For Rent?
+            <select id="isRented" name="isRented_">
+                <option value="">Select Option</option>
+                <option value="2">N/A</option>
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select>
+        </label></p>
+        <p><label for="description">Description
+            <textarea id="description" name="description_"></textarea>
+        </label></p>
+        <p><label for="picture">Upload Image
+            <input type="file" name="itemFile_">
+        </label></p>
+    </div>
+    <div id='items'>
         <p><label for="item">*Item Name<input required name="item_1"></label></p>
         <p><label for="price">*Price<input required name="price_1" type="number" min="0.00" max="10000.00" step="0.01"/></label></p>
         <p><label for="quality">*Quality
-            <select required id="quality" name="quality_1">
+            <select required id="quality"  name="quality_1">
                 <option value="">Choose Quality</option>
                 <option value="">N/A</option>
                 <option value="new">New</option>
@@ -104,23 +134,27 @@
             <input type="file" name="itemFile_1">
         </label></p>
     </div>
-    <div id='items'></div>
     <p><input class='add-item-button' type="button" value="Add Item"></p>
     <p><input type="submit" value="Submit Post"></p>
 </form>
 
 <script>
-    var numItems = 1;
+var numItems = 1;
 $("#make-post-form").on('click', ".add-item-button", function(){
     $("#items").append($('[name = itemTemplate]').clone());
+    $("#items").find('[name = itemTemplate]').show();
     numItems++;
     $("#items").find("[name = itemTemplate]").attr("name", "item_"+(numItems));
-    $("#items").find("[name = item_1]").attr("name", "item_"+(numItems));
-    $("#items").find("[name = price_1]").attr("name", "price_"+(numItems));
-    $("#items").find("[name = quality_1]").attr("name", "quality_"+(numItems));
-    $("#items").find("[name = isRented_1]").attr("name", "isRented_"+(numItems));
-    $("#items").find("[name = description_1]").attr("name", "description_"+(numItems));
-    $("#items").find("[name = itemFile_1]").attr("name", "itemFile_"+(numItems));
+    $("#items").find("[name = item_]").attr("name", "item_"+(numItems));
+    $("#items").find("[name = item_" + numItems + "]").prop('required',true);
+    $("#items").find("[name = price_]").attr("name", "price_"+(numItems));
+    $("#items").find("[name = price_" + numItems + "]").prop('required',true);
+    $("#items").find("[name = quality_]").attr("name", "quality_"+(numItems));
+    $("#items").find("[name = quality_" + numItems + "]").prop('required',true);
+    $("#items").find("[name = isRented_]").attr("name", "isRented_"+(numItems));
+    $("#items").find("[name = isRented_" + numItems + "]").prop('required',true);
+    $("#items").find("[name = description_]").attr("name", "description_"+(numItems));
+    $("#items").find("[name = itemFile_]").attr("name", "itemFile_"+(numItems));
     $("[name = numItems]").attr("value", numItems);
 });
 </script>
