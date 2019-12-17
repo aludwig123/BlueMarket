@@ -8,29 +8,32 @@
 <body>
 {% block content %}
 
-{% for post in posts %}
-<div class="card" id="{{post.pid}}">
-    <img id="feedImage" src="{{url_for('static', filename= 'placeholder.png')}}" alt="item">
-    <!-- <img src="{{url_for('static', filename="{{post.image}}")}}" alt="item"> -->
-    <div class="container">
-        <h4>{{post.name}} <br> Seller: {{post.uid}}</h4>
-        <p>Price Range: {% if post.priceRange == 'free' %}
-            Free
-            {% elif post.priceRange == 'low' %}
-            $
-            {% elif post.priceRange == 'medium' %}
-            $$
-            {% elif post.priceRange == 'high' %}
-            $$$
-            {% endif %}
-        <br>Payment Type: {{post.paymentType}}</p>
-        <form action='{{url_for("readPost", pid = post.pid)}}'>
-            <button type="submit" class="detailButton">Details</button>
-        </form>
-        <button type="submit" id={{post.pid}} class="unbookmarkButton">Unbookmark</button>
+{% if posts|length == 0 %}
+<h3 class='noneYet'>You have not bookmarked any posts yet!</h3>
+{% else %}
+    {% for post in posts %}
+    <div class="card" id="{{post.pid}}">
+        <img id="feedImage" src="{{url_for('uploaded_file',filename=post.photo)}}" alt="item">
+        <div class="container">
+            <h4>{{post.name}} <br> Seller: {{post.uid}}</h4>
+            <p>Price Range: {% if post.priceRange == 'free' %}
+                Free
+                {% elif post.priceRange == 'low' %}
+                $
+                {% elif post.priceRange == 'medium' %}
+                $$
+                {% elif post.priceRange == 'high' %}
+                $$$
+                {% endif %}
+            <br>Payment Type: {{post.paymentType}}</p>
+            <form action='{{url_for("readPost", pid = post.pid)}}'>
+                <button type="submit" class="detailButton">Details</button>
+            </form>
+            <button type="submit" id={{post.pid}} class="unbookmarkButton">Unbookmark</button>
+        </div>
     </div>
-</div>
-{% endfor %}
+    {% endfor %}
+{% endif %}
 <script>
     $(".card").on('click', ".unbookmarkButton", function(){
         if(confirm("Are you sure you want to unbookmark this post?")){

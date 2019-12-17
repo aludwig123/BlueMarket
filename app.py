@@ -4,7 +4,7 @@
 # Fall 2019
 
 from flask import (Flask, render_template, request, url_for, redirect, flash, session,
-                    send_from_directory, Response, make_response)
+                    send_from_directory, Response, make_response, jsonify)
 from datetime import datetime
 import random
 import dbInteractions
@@ -138,14 +138,16 @@ def unbookmarkPost(pid):
     flash("Post has been removed from your bookmarks!")
     return redirect(request.referrer)
 
-@app.route('/interested/<iid>/')
-def interestedItem(iid):
+@app.route('/interested/')
+def interestedItem():
     '''User marks that they are interested in an item'''
+    print('inside interested id')
+    iid = int(request.args.get('iid'))
     conn = dbInteractions.getConn()
     user = session['CAS_USERNAME']
     seller = dbInteractions.getSeller(conn, iid)
     if user == seller:
-        flash("You cannot mark yourself interested in your own item!")
+        return jsonify( {'msg': 'You cannot mark yourself interested in your own item!'} )
     else:
         checkInterested = dbInteractions.checkIsInterestedIn(conn, user, iid)
         if not checkInterested:
@@ -158,9 +160,9 @@ def interestedItem(iid):
                                         To contact the buyer, please respond to this email or contact them at '''+user+'''@wellesley.edu \n\n
                                         Thanks for using Blue Market! ''')
             mail.send(msg)
-            flash("Seller notified!")
+            return jsonify( {'msg': 'Seller notified!'} )
         else: 
-            flash("You have already marked yourself as interested in this item!")
+            return jsonify( {'msg': 'You have already marked yourself as interested in this item!'} )
     return redirect(request.referrer)
 
 @app.route('/myStuff/interested/')
@@ -359,15 +361,16 @@ def makePost():
         flash("Your post has been created!")
         return redirect(url_for('feed'))
 
-@app.route('/deleteItem/<iid>')
-def deleteItem(iid):
+@app.route('/deleteItem/')
+def deleteItem():
+    iid = int(request.args.get('iid'))
     conn = dbInteractions.getConn()
     seller = dbInteractions.getSeller(conn, iid)
     if session['CAS_USERNAME'] == seller:
         dbInteractions.deleteItem(conn, iid)
-        flash("Successfully deleted item from post!")
+        return jsonify( {'msg': 'Successfully deleted item from post! Reload page to see change.'} )
     else:
-        flash("You can't delete an item from a post you didn't create you stinky hacker you!")
+        return jsonify( {'msg': "You can't delete an item from a post you didn't create you stinky hacker you!"} )
     return redirect(request.referrer)
 
 @app.route('/logout/', methods = ['GET', 'POST'])

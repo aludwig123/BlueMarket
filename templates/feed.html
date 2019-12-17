@@ -63,29 +63,32 @@
 <div class='body'>
     <body>
     {% block content %}
-
-    {% for post in posts %}
-    <div class="card" id="{{post.pid}}">
-        <img id="feedImage" src="{{url_for('uploaded_file',filename=post.photo)}}" alt="PostPhoto"/>
-        <div class="container">
-            <p><h4>{{post.name}} <br> Seller: {{post.uid}}</h4>
-            Price Range: {% if post.priceRange == 'free' %}
-                Free
-                {% elif post.priceRange == 'low' %}
-                $
-                {% elif post.priceRange == 'medium' %}
-                $$
-                {% elif post.priceRange == 'high' %}
-                $$$
-                {% endif %}
-            <br>Payment Type: {{post.paymentType}}
-            <form action='{{url_for("readPost", pid=post.pid)}}'>
-                <button type="submit" class="detailButton">Details</button>
-            </form>
-        </p>
+    {% if posts|length == 0%}
+        <h3 class='noneYet'>No posts yet!</h3>
+    {% else %}
+        {% for post in posts %}
+        <div class="card" id="{{post.pid}}">
+            <img id="feedImage" src="{{url_for('uploaded_file',filename=post.photo)}}" alt="PostPhoto"/>
+            <div class="container">
+                <p><h4>{{post.name}} <br> Seller: {{post.uid}}</h4>
+                Price Range: {% if post.priceRange == 'free' %}
+                    Free
+                    {% elif post.priceRange == 'low' %}
+                    $
+                    {% elif post.priceRange == 'medium' %}
+                    $$
+                    {% elif post.priceRange == 'high' %}
+                    $$$
+                    {% endif %}
+                <br>Payment Type: {{post.paymentType}}
+                <form action='{{url_for("readPost", pid=post.pid)}}'>
+                    <button type="submit" class="detailButton">Details</button>
+                </form>
+            </p>
+            </div>
         </div>
-    </div>
-    {% endfor %}
+        {% endfor %}
+    {% endif %}
     {% endblock %}
     </body>
 </div>

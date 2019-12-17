@@ -15,7 +15,8 @@ def getConn():
 def makePost(conn,user,title,category,pRange,pType,pickup,description,photo):
     '''Make a new post (no items), return the most recent inserted pid by current thread.'''
     curs = dbi.dictCursor(conn)
-    curs.execute('''insert into post(uid,name,category,priceRange,paymentType,pickUpLocation,description,photo)
+    curs.execute('''insert into post(uid,name,category,priceRange,paymentType,
+                    pickUpLocation,description,photo)
                     values (%s,%s,%s,%s,%s,%s,%s,%s)''',
                 [user,title,category,pRange,pType,pickup,description,photo])
     curs.execute('''select last_insert_id()''')
@@ -24,18 +25,22 @@ def makePost(conn,user,title,category,pRange,pType,pickup,description,photo):
 def updatePost(conn,pid,user,title,category,pRange,pType,pickup,description,photo):
     '''Updates a post (no items) given the pid.'''
     curs = dbi.dictCursor(conn)
-    curs.execute('''update post set name=%s, category=%s, priceRange=%s, paymentType=%s, pickUpLocation=%s,
-    description=%s, photo=%s, dateCreated=current_timestamp where pid=%s''', [title,category,pRange,pType,pickup,description,photo,pid])
+    curs.execute('''update post set name=%s, category=%s, priceRange=%s,
+                    paymentType=%s, pickUpLocation=%s, description=%s, photo=%s,
+                    dateCreated=current_timestamp where pid=%s''',
+                    [title,category,pRange,pType,pickup,description,photo,pid])
 
 def updateItem(conn, iid, pid, name, price, quality, isRented, description, photo):
     '''Updates an item given the iid. If the item is new (iid=-1), insert into database.'''
     curs = dbi.dictCursor(conn)
     if iid < 0:
-        curs.execute('''insert into item (pid, name, price, quality, isRented, description, photo) values (%s, %s, %s, %s, %s, %s, %s)''',
-        [pid, name, price, quality, isRented, description, photo])
+        curs.execute('''insert into item (pid, name, price, quality, isRented,
+                    description, photo) values (%s, %s, %s, %s, %s, %s, %s)''',
+                    [pid, name, price, quality, isRented, description, photo])
     else:
-        curs.execute('''update item set name=%s, price=%s, quality=%s, isRented=%s, description=%s, photo=%s where iid=%s''', 
-        [name, price, quality, isRented, description, photo, iid])
+        curs.execute('''update item set name=%s, price=%s, quality=%s, isRented=%s,
+                        description=%s, photo=%s where iid=%s''', 
+                    [name, price, quality, isRented, description, photo, iid])
 
 def getImageFilename(conn, pid):
     '''Returns a post's photo's filename given the pid'''
@@ -58,7 +63,8 @@ def getFeed(conn):
 def getFeedCategory(conn, category):
     '''Return info of all posts in feed for given category'''
     curs = dbi.dictCursor(conn)
-    curs.execute('select * from post where category = %s order by dateCreated DESC', [category])
+    curs.execute('select * from post where category = %s order by dateCreated DESC',
+                [category])
     return curs.fetchall()
 
 def getPost(conn, pid):
@@ -77,13 +83,15 @@ def login(conn, user):
 def getMyPosts(conn, user):
     '''Returns all posts by user given connection and user uid'''
     curs = dbi.dictCursor(conn)
-    curs.execute('select * from post where uid = %s order by dateCreated DESC', [user])
+    curs.execute('select * from post where uid = %s order by dateCreated DESC',
+                [user])
     return curs.fetchall()
 
 def getSearchPIDs(conn, query):
     '''Returns all pids that have items containing the query'''
     curs = dbi.dictCursor(conn)
-    curs.execute('select distinct pid from item where name like %s', ['%' + query + '%'])
+    curs.execute('select distinct pid from item where name like %s',
+                ['%' + query + '%'])
     return curs.fetchall()
 
 def deletePost(conn, pid):
@@ -103,14 +111,18 @@ def bookmarkPost(conn, uid, pid):
 def getBookmarked(conn, user):
     '''Returns posts that have been bookmarked by the given user'''
     curs = dbi.dictCursor(conn)
-    curs.execute('select * from post where pid in (select pid from bookmark where uid = %s)', [user])
+    curs.execute('''select * from post
+                where pid in (select pid from bookmark where uid = %s)''',
+                [user])
     return curs.fetchall()
 
 def interestedIn(conn, uid, iid):
     '''Given item id and user id, insert those values into interested table'''
     curs = dbi.dictCursor(conn)
     curs.execute('insert into interested values(%s, %s)', [uid, iid])
-    curs.execute('select uid from post where pid = (select pid from item where iid = %s)',[iid])
+    curs.execute('''select uid from post
+                    where pid = (select pid from item where iid = %s)''',
+                [iid])
     sellerId = curs.fetchone()
     curs.execute('select name from item where iid = %s',[iid])
     itemName = curs.fetchone()
@@ -119,7 +131,9 @@ def interestedIn(conn, uid, iid):
 def getSeller(conn, iid):
     '''Return seller id given item id'''
     curs = dbi.dictCursor(conn)
-    curs.execute('select uid from post where pid = (select pid from item where iid = %s)',[iid])
+    curs.execute('''select uid from post
+                    where pid = (select pid from item where iid = %s)''',
+                [iid])
     return curs.fetchone()['uid']
 
 def getSellerB(conn, pid):
@@ -150,14 +164,18 @@ def unbookmarkPost(conn, uid, pid):
 def getInterestedIn(conn, uid):
     '''Returns items the given user is interested in'''
     curs = dbi.dictCursor(conn)
-    curs.execute('''select * from item where iid in (select iid from interested where uid = %s)''', [uid])
+    curs.execute('''select * from item where iid in
+                    (select iid from interested where uid = %s)''',
+                [uid])
     return curs.fetchall()
 
 def addItem(conn, pid, name, price, quality, isRented, description, photo):
     '''Insert an item into the item table'''
     curs = dbi.dictCursor(conn)
-    curs.execute('''insert into item(pid, name, price, quality, isRented, description, photo)
-                    values(%s,%s,%s,%s,%s,%s,%s)''', [pid, name, price, quality, isRented, description, photo])
+    curs.execute('''insert into item(pid, name, price, quality, isRented,
+                    description, photo)
+                    values(%s,%s,%s,%s,%s,%s,%s)''',
+                    [pid, name, price, quality, isRented, description, photo])
 
 def getPostItems(conn, pid):
     '''Get all items of a given post'''

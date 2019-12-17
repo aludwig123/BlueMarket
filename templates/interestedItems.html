@@ -8,21 +8,24 @@
 <body>
 {% block content %}
 
-{% for item in items %}
-<div class="card" id="{{item.iid}}">
-    <img id="feedImage" src="{{url_for('static', filename= 'placeholder.png')}}" alt="item">
-    <!-- <img src="{{url_for('static', filename="{{post.image}}")}}" alt="item"> -->
-    <div class="container">
-        <p><b>Name: </b>{{item.name}}<br>
-        <b>Price: </b>{{item.price}}<br>
-        <b>Quality: </b>{{item.quality}}<br>
-        <b>Rented: </b>{{item.isRented}}<br>
-        <b>Description: </b>{{item.description}}<br>
-        <form action='{{url_for("readPost", pid = item.pid)}}'>
-            <button type="submit" class="originalPost">Original Post</button>
-        </form></p>
+{% if items|length == 0 %}
+<h3 class='noneYet'>You have not marked yourself interested in any items yet!</h3>
+{% else %}
+    {% for item in items %}
+    <div class="card" id="{{item.iid}}">
+        <img id="feedImage" src="{{url_for('uploaded_file',filename=item.photo)}}" alt="item">
+        <div class="container">
+            <p><b>Name: </b>{{item.name}}<br>
+            <b>Price: </b>{{item.price}}<br>
+            <b>Quality: </b>{{item.quality}}<br>
+            <b>Rented: </b>{{item.isRented}}<br>
+            <b>Description: </b>{{item.description}}<br>
+            <form action='{{url_for("readPost", pid = item.pid)}}'>
+                <button type="submit" class="originalPost">Original Post</button>
+            </form></p>
+        </div>
     </div>
-</div>
-{% endfor %}
+    {% endfor %}
+{% endif %}
 {% endblock %}
 </body>
