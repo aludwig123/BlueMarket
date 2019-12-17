@@ -17,7 +17,7 @@
 
 {% block navigation %}
 <div id='navigation'>
-    <h1 id='bluemark-title'>Blue <img id='wellesley-w' src="{{url_for('static', filename='Wellesley_W.png')}}" alt="W" height="22" width="35">arket</h1>
+    <h1 id='bluemark-title'>Blue <img id='wellesley-w' src="{{url_for('static', filename='wellesleyW.png')}}" alt="W" height="22" width="35">arket</h1>
     <ul>
         <a href="{{url_for('feed')}}">Feed</a>
         <a href="{{url_for('myStuff')}}">My Stuff</a>
@@ -60,36 +60,38 @@
     {% endwith %}
 {% endblock %}
 
-<body>
-{% block content %}
+<div class='body'>
+    <body>
+    {% block content %}
 
-{% for post in posts %}
-<div class="card" id="{{post.pid}}">
-    <img id="feedImage" src="{{url_for('uploaded_file',filename=post.photo)}}" alt="PostPhoto"/>
-    <div class="container">
-        <p><h4>{{post.name}} <br> Seller: {{post.uid}}</h4>
-        Price Range: {% if post.priceRange == 'free' %}
-            Free
-            {% elif post.priceRange == 'low' %}
-            $
-            {% elif post.priceRange == 'medium' %}
-            $$
-            {% elif post.priceRange == 'high' %}
-            $$$
-            {% endif %}
-        <br>Payment Type: {{post.paymentType}}
-        <form action='{{url_for("readPost", pid=post.pid)}}'>
-            <button type="submit" class="detailButton">Details</button>
-        </form>
-    </p>
+    {% for post in posts %}
+    <div class="card" id="{{post.pid}}">
+        <img id="feedImage" src="{{url_for('uploaded_file',filename=post.photo)}}" alt="PostPhoto"/>
+        <div class="container">
+            <p><h4>{{post.name}} <br> Seller: {{post.uid}}</h4>
+            Price Range: {% if post.priceRange == 'free' %}
+                Free
+                {% elif post.priceRange == 'low' %}
+                $
+                {% elif post.priceRange == 'medium' %}
+                $$
+                {% elif post.priceRange == 'high' %}
+                $$$
+                {% endif %}
+            <br>Payment Type: {{post.paymentType}}
+            <form action='{{url_for("readPost", pid=post.pid)}}'>
+                <button type="submit" class="detailButton">Details</button>
+            </form>
+        </p>
+        </div>
     </div>
+    {% endfor %}
+    {% endblock %}
+    </body>
 </div>
-{% endfor %}
-{% endblock %}
-</body>
 
 <script>
-// setTimeout(function() {
-//     $('#flashes').fadeOut('fast');
-// }, 10000);
+setTimeout(function() {
+    $('#flashes').fadeOut('fast');
+}, 10000);
 </script>

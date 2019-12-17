@@ -9,9 +9,10 @@
     <title>BlueMarket-Login</title>
     <link rel='stylesheet' href="{{url_for('static', filename = 'style.css')}}">
 </head>
-<body>
-    <div id='login-card' class='card'>
-        <h1>Welcome to BlueMarket!</h1>
+<body id="login-body">
+    <div id='login-card'>
+        <h1>Welcome to <mark class="navy">Blue</mark>Market!</h1>
+        <p>A resale site for Wellesley students</p>
         <p>Please sign in using your Wellesley Email:</p>
         <form method="GET" action="/login/"><button>login</button></form>
     </div>
