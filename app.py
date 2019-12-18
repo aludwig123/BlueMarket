@@ -141,7 +141,6 @@ def unbookmarkPost(pid):
 @app.route('/interested/')
 def interestedItem():
     '''User marks that they are interested in an item'''
-    print('inside interested id')
     iid = int(request.args.get('iid'))
     conn = dbInteractions.getConn()
     user = session['CAS_USERNAME']
