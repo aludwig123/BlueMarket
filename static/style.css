@@ -177,18 +177,25 @@ img:before {
 .unbookmarkButton {
     float: right;
     background-color: red;
-}
-
-#Interested {
+    border-radius: 8px;
     cursor: pointer;
 }
 
-#Bookmark {
+.Interested {
+    cursor: pointer;
+}
+
+.Bookmark {
     cursor: pointer;
 }
 
 #delete-item {
     cursor: pointer;
+}
+
+.originalPost {
+    cursor: pointer;
+    border-radius: 8px;
 }
 
 .body {
